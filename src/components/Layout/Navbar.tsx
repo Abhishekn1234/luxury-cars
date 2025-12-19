@@ -1,54 +1,83 @@
 import { Navbar, Nav, Container, Button } from "react-bootstrap";
+import { Link } from "react-router-dom";
 
 export default function AppNavbar() {
   return (
     <Navbar
       expand="lg"
-      bg="dark"
-      variant="dark"
-      fixed="top"
-      className="shadow-lg py-3"
+      // variant="dark"               // 👈 makes toggle icon white
+      className="border-0 bg-dark bg-opacity-200 py-2"
     >
       <Container>
         {/* Logo */}
-        <Navbar.Brand href="/" className="d-flex align-items-center gap-2">
+        <Navbar.Brand
+          as={Link}
+          to="/"
+          className="d-flex align-items-center gap-2 text-white"
+        >
           <img
-            src="/pexels-glenda-thompson-47135804-35061378.jpg"   // place logo in public folder
+            src="/pexels-glenda-thompson-47135804-35061378.jpg"
             alt="Used Car Logo"
             height="40"
           />
           <span className="fw-bold fs-5">AutoMart</span>
         </Navbar.Brand>
 
-        {/* Mobile Toggle */}
+        {/* Toggle */}
         <Navbar.Toggle aria-controls="usedcar-navbar" />
 
         {/* Menu */}
         <Navbar.Collapse id="usedcar-navbar">
-          <Nav className="ms-auto align-items-lg-center gap-lg-4">
-            <Nav.Link href="#about" className="fw-semibold">
+          <Nav className="ms-auto align-items-lg-center gap-lg-4 text-center">
+            <Nav.Link
+              as={Link}
+              to="/about"
+              className="fw-semibold text-white"
+            >
               About Us
             </Nav.Link>
 
-            <Nav.Link href="#services" className="fw-semibold">
+            <Nav.Link
+              as={Link}
+              to="/services"
+              className="fw-semibold text-white"
+            >
               Services
             </Nav.Link>
 
-            <Nav.Link href="#collections" className="fw-semibold">
+            <Nav.Link
+              as={Link}
+              to="/collections"
+              className="fw-semibold text-white"
+            >
               Collections
             </Nav.Link>
 
-            <Nav.Link href="#contact" className="fw-semibold">
+            <Nav.Link
+              as={Link}
+              to="/contact"
+              className="fw-semibold text-white"
+            >
               Contact Us
             </Nav.Link>
 
             {/* Action Buttons */}
-            <div className="d-flex gap-2 ms-lg-3 mt-3 mt-lg-0">
-              <Button variant="outline-light" className="px-4">
+            <div className="d-flex gap-2 ms-lg-3 mt-3 mt-lg-0 justify-content-center">
+              <Button
+                // as={Link}
+                // to="/buy"
+                variant="outline-light"
+                className="px-4"
+              >
                 Buy Car
               </Button>
 
-              <Button variant="warning" className="px-4 fw-semibold">
+              <Button
+                // // as={Link}
+                // to="/sell"
+                variant="warning"
+                className="px-4 fw-semibold"
+              >
                 Sell Car
               </Button>
             </div>
@@ -58,4 +87,3 @@ export default function AppNavbar() {
     </Navbar>
   );
 }
-

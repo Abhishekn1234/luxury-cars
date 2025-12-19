@@ -1,25 +1,75 @@
-import { Button } from "react-bootstrap";
-import { motion, useAnimation, useInView } from "framer-motion";
-import { useRef, useEffect } from "react";
-import "./Hero.css";
+import { Button, Container } from "react-bootstrap";
+import { motion, useAnimation, useInView, type Variants } from "framer-motion";
+import { useRef, useEffect, useState } from "react";
 
 export default function HeroSection() {
   const ref = useRef(null);
-  const inView = useInView(ref, { once: false, margin: "-50px" }); // triggers slightly before entering
+  const inView = useInView(ref, { once: true });
   const controls = useAnimation();
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     if (inView) {
-      controls.start({ opacity: 1, y: 0 });
-    } else {
-      controls.start({ opacity: 0, y: 50 });
+      controls.start("visible");
     }
   }, [inView, controls]);
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+        delayChildren: 0.3
+      }
+    }
+  };
+
+ 
+const itemVariants: Variants = {
+  hidden: {
+    opacity: 0,
+    y: 30,
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: [0.4, 0, 0.2, 1], // ✅ correct
+    },
+  },
+};
+
+  const highlightVariants:Variants = {
+    initial: { opacity: 0.5, scale: 0.95 },
+    animate: {
+      opacity: 1,
+      scale: 1,
+      transition: {
+        duration: 2,
+        repeat: Infinity,
+        repeatType: "reverse",
+        ease: "easeInOut"
+      }
+    }
+  };
+
+  const glowVariants = {
+    rest: { textShadow: "0 0 5px rgba(13, 202, 240, 0.3)" },
+    hover: {
+      textShadow: "0 0 15px rgba(13, 202, 240, 0.7), 0 0 25px rgba(13, 202, 240, 0.5)",
+      scale: 1.05,
+      transition: {
+        duration: 0.3
+      }
+    }
+  };
 
   return (
     <section
       ref={ref}
-      className="position-relative w-100 vh-100 overflow-hidden"
+      className="position-relative w-100 min-vh-90 overflow-hidden"
     >
       {/* Background Video */}
       <video
@@ -27,64 +77,134 @@ export default function HeroSection() {
         loop
         muted
         playsInline
-        preload="auto"
         className="position-absolute top-0 start-0 w-100 h-100 object-fit-cover"
       >
         <source src="/herosection.mp4" type="video/mp4" />
       </video>
 
-      {/* Dark Gradient Overlay */}
-      <div
-        className="position-absolute top-0 start-0 w-100 h-100"
-        style={{
-          background:
-            "linear-gradient(to bottom, rgba(0,0,0,0.55), rgba(0,0,0,0.85))",
-        }}
-      />
+      {/* Gradient Overlay */}
+      <div className="position-absolute top-0 start-0 w-100 h-100 bg-gradient-to-b from-black/80 via-black/60 to-black/80" />
 
       {/* Content */}
-      <div className="position-relative z-1 d-flex align-items-center justify-content-center h-100 px-4 text-center">
-        <motion.div
-          style={{ maxWidth: "900px" }}
-          animate={controls}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-        >
-          <h1
-            className="fw-bold display-4 display-md-3 mb-4 text-white hero-heading"
-            style={{
-              letterSpacing: "1px",
-              textShadow: "0 8px 40px rgba(0,0,0,0.7)",
-            }}
+      <div className="position-relative h-100 d-flex align-items-center justify-content-center text-center pt-5">
+        <Container className="px-3">
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate={controls}
+            className="px-4 py-5"
           >
-            Premium Used Cars
-            <span className="highlight-text d-block mt-3">
-              Driven by Trust
-            </span>
-          </h1>
+            {/* Main Title */}
+            <motion.div variants={itemVariants} className="mb-4">
+              <h1 className="fw-bold display-3 text-white position-relative">
+                <span className="d-block">
+                  Premium Used Cars
+                </span>
+                <motion.span
+                  variants={highlightVariants}
+                  animate="animate"
+                  initial="initial"
+                  className="d-block mt-3 text-info position-relative"
+                  style={{ display: "inline-block" }}
+                  onMouseEnter={() => setIsHovered(true)}
+                  onMouseLeave={() => setIsHovered(false)}
+                >
+                  <motion.span
+                    variants={glowVariants}
+                    animate={isHovered ? "hover" : "rest"}
+                    className="d-inline-block px-4 py-2 rounded"
+                    style={{
+                      background: "rgba(13, 202, 240, 0.1)",
+                      border: "1px solid rgba(13, 202, 240, 0.3)",
+                      backdropFilter: "blur(5px)"
+                    }}
+                  >
+                    Driven by Trust
+                  </motion.span>
+                </motion.span>
+              </h1>
+            </motion.div>
 
-          <p
-            className="fs-5 fs-md-4 text-light mb-5 hero-subtitle"
-            style={{
-              opacity: 0.85,
-              lineHeight: "1.7",
-              textShadow: "0 4px 20px rgba(0,0,0,0.6)",
-            }}
-          >
-            Handpicked, quality-checked vehicles that feel brand new.
-            Experience luxury, reliability, and true value.
-          </p>
+            {/* Description */}
+            <motion.div variants={itemVariants} className="max-w-2xl mx-auto mb-5">
+              <p className="fs-4 text-light mb-0">
+                Handpicked, quality-checked vehicles that feel brand new.
+              </p>
+              <motion.p
+                className="fs-4 text-info fw-semibold mt-2"
+                animate={{
+                  opacity: [0.7, 1, 0.7]
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              >
+                Experience luxury, reliability, and true value.
+              </motion.p>
+            </motion.div>
 
-          <div className="d-flex justify-content-center gap-4 flex-wrap">
-            <Button className="hero-btn-primary px-5 py-3 fw-semibold">
-              Browse Cars
-            </Button>
+            {/* Buttons */}
+            <motion.div variants={itemVariants} className="d-flex justify-content-center gap-4 flex-wrap mt-5">
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Button
+                  size="lg"
+                  variant="info"
+                  className="px-5 py-3 fw-bold rounded-pill position-relative overflow-hidden"
+                >
+                  <span className="text-white">
+                    Browse Cars
+                  </span>
+                </Button>
+              </motion.div>
 
-            <Button className="hero-btn-outline px-5 py-3 fw-semibold">
-              Sell Your Car
-            </Button>
-          </div>
-        </motion.div>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Button
+                  size="lg"
+                  variant="outline-light"
+                  className="px-5 py-3 fw-bold rounded-pill border-2"
+                >
+                  Sell Your Car
+                </Button>
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        </Container>
       </div>
+
+      <style>{`
+        .min-vh-90 {
+          min-height: 90vh;
+        }
+
+        .max-w-2xl {
+          max-width: 42rem;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+          .display-3 {
+            font-size: 2.5rem !important;
+          }
+          
+          .fs-4 {
+            font-size: 1.1rem !important;
+          }
+        }
+
+        @media (max-width: 576px) {
+          .display-3 {
+            font-size: 2rem !important;
+          }
+        }
+      `}</style>
     </section>
   );
 }

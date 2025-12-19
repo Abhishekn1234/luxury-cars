@@ -1,73 +1,159 @@
-/* Button Hover Effects */
+/* =========================
+   GLOBAL FIX (IMPORTANT)
+   ========================= */
+
+/* =========================
+   HERO SECTION
+   ========================= */
+.hero-section {
+  position: relative;
+  width: 100%;
+  height: 100svh; /* Fixes laptop + mobile scroll */
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+/* =========================
+   VIDEO
+   ========================= */
+.hero-video {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+  display: block;
+}
+
+/* =========================
+   OVERLAY
+   ========================= */
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.55),
+    rgba(0, 0, 0, 0.85)
+  );
+  z-index: 1;
+}
+
+/* =========================
+   CONTENT
+   ========================= */
+.hero-content {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 1rem;
+}
+
+.hero-inner {
+  max-width: 900px;
+}
+
+/* =========================
+   TEXT
+   ========================= */
+.hero-heading {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 800;
+  color: #ffffff;
+  text-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+  margin-bottom: 1.5rem;
+}
+
+.highlight-text {
+  display: block;
+  margin-top: 0.75rem;
+  font-size: 1.4em;
+  font-weight: 700;
+  background: linear-gradient(135deg, #22d3ee, #0ea5e9, #3b82f6);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 3s linear infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+.hero-subtitle {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.7;
+  margin-bottom: 2.5rem;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+}
+
+/* =========================
+   BUTTONS
+   ========================= */
+.hero-buttons {
+  display: flex;
+  gap: 1.25rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
 .hero-btn-primary {
+  padding: 0.9rem 2.8rem;
   border-radius: 50px;
-  background: linear-gradient(135deg, #22d3ee, #0ea5e9);
   border: none;
-  box-shadow: 0 15px 40px rgba(34, 211, 238, 0.4);
+  font-weight: 600;
+  background: linear-gradient(135deg, #22d3ee, #0ea5e9);
+  box-shadow: 0 15px 40px rgba(34, 211, 238, 0.45);
   transition: all 0.3s ease;
 }
 
 .hero-btn-primary:hover {
-  transform: scale(1.05);
-  box-shadow: 0 20px 60px rgba(34, 211, 238, 0.6);
+  transform: scale(1.06);
+  box-shadow: 0 22px 60px rgba(34, 211, 238, 0.65);
 }
 
 .hero-btn-outline {
+  padding: 0.9rem 2.8rem;
   border-radius: 50px;
-  border: 2px solid #fff;
-  color: #fff;
+  border: 2px solid #ffffff;
   background: transparent;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  color: #ffffff;
+  font-weight: 600;
   transition: all 0.3s ease;
 }
 
 .hero-btn-outline:hover {
   background: linear-gradient(135deg, #22d3ee, #0ea5e9);
-  color: #fff;
-  transform: scale(1.05);
-  box-shadow: 0 15px 40px rgba(34, 211, 238, 0.5);
+  border-color: transparent;
+  transform: scale(1.06);
+  box-shadow: 0 18px 45px rgba(34, 211, 238, 0.55);
 }
 
-/* Highlight Text Effects */
-.highlight-text {
-  font-weight: 700;
-  font-size: 1.5em;
-  background: linear-gradient(135deg, #22d3ee, #0ea5e9, #3b82f6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  position: relative;
-  display: inline-block;
-  animation: shimmer 2.5s infinite linear;
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: -500px 0;
+/* =========================
+   MOBILE FIX
+   ========================= */
+@media (max-width: 768px) {
+  .hero-buttons {
+    flex-direction: column;
   }
-  100% {
-    background-position: 500px 0;
+
+  .hero-btn-primary,
+  .hero-btn-outline {
+    width: 100%;
+    max-width: 280px;
   }
-}
-
-/* Optional subtitle glow */
-.hero-subtitle {
-  position: relative;
-}
-
-.hero-subtitle::after {
-  content: '';
-  position: absolute;
-  width: 50px;
-  height: 3px;
-  background: linear-gradient(135deg, #22d3ee, #0ea5e9);
-  bottom: -10px;
-  left: 50%;
-  transform: translateX(-50%);
-  border-radius: 2px;
-  animation: glow 2s infinite alternate;
-}
-
-@keyframes glow {
-  0% { opacity: 0.2; }
-  100% { opacity: 1; }
 }
