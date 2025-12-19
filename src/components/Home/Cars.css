@@ -1,0 +1,51 @@
+.car-image {
+  height: 300px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+  color:black;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+.car-image {
+  height: 300px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.car-image:hover {
+  transform: scale(1.03);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+}
+
+/* Remove overlay background */
+.car-image-overlay {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  /* removed background */
+  transition: none; /* no overlay color transition */
+}
+
+.car-image h3 {
+  font-size: 1.8rem;
+  letter-spacing: 0.5px;
+  color: #fff; /* keep text readable on image */
+  text-shadow: 0 4px 20px rgba(0,0,0,0.5); /* optional subtle shadow for readability */
+}
+
+.car-image p {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #fff; /* text color over image */
+  text-shadow: 0 3px 15px rgba(0,0,0,0.4); /* optional for readability */
+}
+

@@ -1,0 +1,73 @@
+/* Button Hover Effects */
+.hero-btn-primary {
+  border-radius: 50px;
+  background: linear-gradient(135deg, #22d3ee, #0ea5e9);
+  border: none;
+  box-shadow: 0 15px 40px rgba(34, 211, 238, 0.4);
+  transition: all 0.3s ease;
+}
+
+.hero-btn-primary:hover {
+  transform: scale(1.05);
+  box-shadow: 0 20px 60px rgba(34, 211, 238, 0.6);
+}
+
+.hero-btn-outline {
+  border-radius: 50px;
+  border: 2px solid #fff;
+  color: #fff;
+  background: transparent;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  transition: all 0.3s ease;
+}
+
+.hero-btn-outline:hover {
+  background: linear-gradient(135deg, #22d3ee, #0ea5e9);
+  color: #fff;
+  transform: scale(1.05);
+  box-shadow: 0 15px 40px rgba(34, 211, 238, 0.5);
+}
+
+/* Highlight Text Effects */
+.highlight-text {
+  font-weight: 700;
+  font-size: 1.5em;
+  background: linear-gradient(135deg, #22d3ee, #0ea5e9, #3b82f6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  position: relative;
+  display: inline-block;
+  animation: shimmer 2.5s infinite linear;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -500px 0;
+  }
+  100% {
+    background-position: 500px 0;
+  }
+}
+
+/* Optional subtitle glow */
+.hero-subtitle {
+  position: relative;
+}
+
+.hero-subtitle::after {
+  content: '';
+  position: absolute;
+  width: 50px;
+  height: 3px;
+  background: linear-gradient(135deg, #22d3ee, #0ea5e9);
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 2px;
+  animation: glow 2s infinite alternate;
+}
+
+@keyframes glow {
+  0% { opacity: 0.2; }
+  100% { opacity: 1; }
+}
