@@ -12,7 +12,7 @@ export default function Clients() {
   ];
 
   return (
-    <section className="bg-white py-5">
+    <section className="py-5">
       <Container>
         <h2 className="fw-bold mb-5 text-center">Our Clients</h2>
         <Row className="g-4 justify-content-center">

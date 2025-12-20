@@ -1,8 +1,10 @@
 import { Button, Container } from "react-bootstrap";
 import { motion, useAnimation, useInView, type Variants } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
-
-export default function HeroSection() {
+interface HeroSectionProps {
+  style?: React.CSSProperties;
+}
+export default function HeroSection({ style }: HeroSectionProps) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true });
   const controls = useAnimation();
@@ -69,6 +71,7 @@ const itemVariants: Variants = {
   return (
     <section
       ref={ref}
+      style={style}
       className="position-relative w-100 min-vh-90 overflow-hidden"
     >
       {/* Background Video */}

@@ -2,6 +2,7 @@ import {  Routes, Route } from "react-router-dom";
 import MainLayout from "./components/Layout/AppLayout";
 import Home from "./pages/Home/Home";
 import About from "./pages/About/About";
+import Contact from "./pages/Contact/Contact";
 
 
 // future pages
@@ -20,7 +21,7 @@ function App() {
           {/* Future Routes */}
           <Route path="/about" element={<About />} />
           {/* <Route path="/cars" element={<CarsPage />} /> */}
-          {/* <Route path="/contact" element={<ContactPage />} /> */}
+          <Route path="/contact" element={<Contact />} />
         </Route>
       </Routes>
     

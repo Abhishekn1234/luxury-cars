@@ -6,7 +6,7 @@ export default function AppNavbar() {
     <Navbar
       expand="lg"
       // variant="dark"               // 👈 makes toggle icon white
-      className="border-0 bg-dark bg-opacity-200 py-2"
+      className="border-0 bg-dark bg-opacity-100 py-2"
     >
       <Container>
         {/* Logo */}

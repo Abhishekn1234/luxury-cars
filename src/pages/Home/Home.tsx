@@ -7,24 +7,43 @@ import ScrollReveal from "../../components/Home/ScrollReveal";
 
 export default function Home() {
   return (
-    <>
-      <HeroSection />
+    <div style={{ backgroundColor: "#0a0a0a", color: "#fff", width: "100%", minHeight: "100vh" }}>
+      {/* ================= HERO ================= */}
+      <HeroSection
+        style={{
+          backgroundColor: "#111", // dark fallback for hero
+          color: "#fff",
+        }}
+      />
 
+      {/* ================= ABOUT ================= */}
       <ScrollReveal direction="up">
-        <About />
+        <div style={{ backgroundColor: "#111" ,color:"white"}}>
+          <About />
+        </div>
       </ScrollReveal>
 
+      {/* ================= RECENT COLLECTION ================= */}
       <ScrollReveal direction="down">
-        <RecentCollection />
+        <div style={{ backgroundColor: "#111" }}>
+          <RecentCollection />
+        </div>
       </ScrollReveal>
 
+      {/* ================= CLIENTS ================= */}
       <ScrollReveal direction="up">
-        <Clients />
+        <div style={{ backgroundColor: "#111" }}>
+          <Clients />
+        </div>
       </ScrollReveal>
 
+      {/* ================= CARS ================= */}
       <ScrollReveal direction="down">
-        <Cars />
+        <div style={{ backgroundColor: "#111" }}>
+          <Cars />
+        </div>
       </ScrollReveal>
-    </>
+    </div>
   );
 }
+

@@ -48,7 +48,7 @@ export default function RecentCollection() {
   ];
 
   return (
-    <section className="py-5 bg-body-tertiary">
+    <section className="py-5">
       <Container>
         {/* Section Header */}
         <div className="text-center mb-5">
@@ -56,7 +56,7 @@ export default function RecentCollection() {
             Premium Cars
           </Badge>
           <h2 className="fw-bold display-6">Recent Collection</h2>
-          <p className="text-muted mt-2">
+          <p className="mt-2">
             Handpicked luxury & performance vehicles
           </p>
         </div>
