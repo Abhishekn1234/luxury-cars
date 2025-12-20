@@ -400,13 +400,13 @@ export default function SellingCar() {
                     <Form.Group controlId="registrationYear">
                       <Form.Label className="text-light">Registration Year</Form.Label>
                       <Form.Control
-                        type="text"
+                        type="date"
                         placeholder="YYYY"
                         name="registrationYear"
                         value={form.registrationYear}
                         onChange={handleChange}
                         style={{ 
-                          backgroundColor: "white", 
+                          backgroundColor: "#222", 
                           color: "#fff",
                           border: "1px solid #333",
                           borderRadius: "10px"
