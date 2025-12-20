@@ -1,7 +1,8 @@
 import { Navbar, Nav, Container, Button } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function AppNavbar() {
+  const navigate=useNavigate();
   return (
     <Navbar
       expand="lg"
@@ -76,6 +77,7 @@ export default function AppNavbar() {
                 // // as={Link}
                 // to="/sell"
                 variant="warning"
+                onClick={()=>navigate('/selling')}
                 className="px-4 fw-semibold"
               >
                 Sell Car

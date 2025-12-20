@@ -3,6 +3,7 @@ import MainLayout from "./components/Layout/AppLayout";
 import Home from "./pages/Home/Home";
 import About from "./pages/About/About";
 import Contact from "./pages/Contact/Contact";
+import SellingCar from "./pages/Sellingcar/Sellingcar";
 
 
 // future pages
@@ -22,6 +23,7 @@ function App() {
           <Route path="/about" element={<About />} />
           {/* <Route path="/cars" element={<CarsPage />} /> */}
           <Route path="/contact" element={<Contact />} />
+          <Route path="/selling" element={<SellingCar/>}/>
         </Route>
       </Routes>
     

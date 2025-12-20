@@ -1,4 +1,4 @@
-import type { FC } from "react";
+import { useEffect, type FC } from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import { motion, type Variants } from "framer-motion";
 import {
@@ -23,6 +23,7 @@ import {
   SiJeep,
   SiMitsubishi,
 } from "react-icons/si";
+import { useNavigate } from "react-router-dom";
 
 const brandIcons = [
   SiBmw, SiMercedes, SiAudi, SiPorsche, SiFerrari, SiLamborghini, SiTesla, SiVolkswagen,
@@ -37,6 +38,10 @@ const scrollReveal = (direction: "up" | "down" = "up"): Variants => ({
 });
 
 const About: FC = () => {
+  const navigate=useNavigate();
+  useEffect(()=>{
+    window.scrollTo({top:0,behavior:"smooth"})
+  })
   return (
     <div
       style={{
@@ -333,6 +338,7 @@ const About: FC = () => {
               ))}
             </div>
             <Button
+            onClick={()=>navigate('/contact')}
               size="lg"
               variant="info"
               className="rounded-pill fw-semibold"
