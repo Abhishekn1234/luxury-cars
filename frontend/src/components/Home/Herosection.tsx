@@ -8,7 +8,8 @@ interface HeroSectionProps {
 }
 
 export default function HeroSection({ style }: HeroSectionProps) {
-  const ref = useRef(null);
+  const ref = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const inView = useInView(ref, { once: true });
   const controls = useAnimation();
   const [isHovered, setIsHovered] = useState(false);
@@ -18,26 +19,31 @@ export default function HeroSection({ style }: HeroSectionProps) {
     if (inView) {
       controls.start("visible");
     }
+
+    // Try to play the video manually to overcome mobile restrictions
+    const playVideo = async () => {
+      if (videoRef.current) {
+        try {
+          await videoRef.current.play();
+        } catch (err) {
+          console.warn("Autoplay prevented:", err);
+        }
+      }
+    };
+    playVideo();
   }, [inView, controls]);
 
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-        delayChildren: 0.3,
-      },
+      transition: { staggerChildren: 0.2, delayChildren: 0.3 },
     },
   };
 
   const itemVariants: Variants = {
     hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6, ease: [0.4, 0, 0.2, 1] },
-    },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.4, 0, 0.2, 1] } },
   };
 
   const highlightVariants: Variants = {
@@ -60,28 +66,19 @@ export default function HeroSection({ style }: HeroSectionProps) {
 
   return (
     <section ref={ref} style={style} className="position-relative w-100 min-vh-90 overflow-hidden">
-      {/* Background Video for desktop */}
+      {/* Background Video */}
       <video
+        ref={videoRef}
         autoPlay
         loop
         muted
         playsInline
         preload="auto"
-        className="d-none d-md-block position-absolute top-0 start-0 w-100 h-100 object-fit-cover"
+        className="position-absolute top-0 start-0 w-100 h-100 object-fit-cover"
       >
         <source src="/herosection.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
-
-      {/* Fallback Image for mobile */}
-      <div
-        className="d-block d-md-none w-100 h-100 position-absolute top-0 start-0"
-        style={{
-          backgroundImage: "url('/herosection.jpg')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      />
 
       {/* Gradient Overlay */}
       <div className="position-absolute top-0 start-0 w-100 h-100 bg-gradient-to-b from-black/80 via-black/60 to-black/80" />
@@ -162,31 +159,12 @@ export default function HeroSection({ style }: HeroSectionProps) {
       </div>
 
       <style>{`
-        .min-vh-90 {
-          min-height: 90vh;
-        }
-
-        .max-w-2xl {
-          max-width: 42rem;
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-          .display-3 {
-            font-size: 2.5rem !important;
-          }
-
-          .fs-4 {
-            font-size: 1.1rem !important;
-          }
-        }
-
-        @media (max-width: 576px) {
-          .display-3 {
-            font-size: 2rem !important;
-          }
-        }
+        .min-vh-90 { min-height: 90vh; }
+        .max-w-2xl { max-width: 42rem; }
+        @media (max-width: 768px) { .display-3 { font-size: 2.5rem !important; } .fs-4 { font-size: 1.1rem !important; } }
+        @media (max-width: 576px) { .display-3 { font-size: 2rem !important; } }
       `}</style>
     </section>
   );
 }
+
