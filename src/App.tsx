@@ -4,6 +4,8 @@ import Home from "./pages/Home/Home";
 import About from "./pages/About/About";
 import Contact from "./pages/Contact/Contact";
 import SellingCar from "./pages/Sellingcar/Sellingcar";
+import Collections from "./pages/Collections/Collections";
+import Services from "./pages/Services/Services";
 
 
 // future pages
@@ -24,6 +26,8 @@ function App() {
           {/* <Route path="/cars" element={<CarsPage />} /> */}
           <Route path="/contact" element={<Contact />} />
           <Route path="/selling" element={<SellingCar/>}/>
+           <Route path="/collections" element={<Collections/>}/>
+           <Route path="/services" element={<Services/>}/>
         </Route>
       </Routes>
     

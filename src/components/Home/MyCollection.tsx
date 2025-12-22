@@ -1,7 +1,9 @@
 import { Container, Row, Col, Card, Button, Badge } from "react-bootstrap";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 export default function RecentCollection() {
+  const navigate=useNavigate();
   const cars = [
     {
       title: "BMW 5 Series",
@@ -106,7 +108,7 @@ export default function RecentCollection() {
                             : "outline-dark"
                         }
                         size="sm"
-                        className="rounded-pill px-4"
+                        className="rounded-pill px-4" onClick={()=>navigate('/collections')}
                       >
                         View Details
                       </Button>

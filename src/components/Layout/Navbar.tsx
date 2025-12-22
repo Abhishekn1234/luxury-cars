@@ -1,87 +1,62 @@
-import { Navbar, Nav, Container, Button } from "react-bootstrap";
-import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Navbar, Nav, Container } from "react-bootstrap";
+import { Link, NavLink } from "react-router-dom";
 
 export default function AppNavbar() {
-  const navigate=useNavigate();
+  const [expanded, setExpanded] = useState(false);
+
+  const handleToggle = () => setExpanded(!expanded);
+  const closeNav = () => setExpanded(false);
+
   return (
     <Navbar
       expand="lg"
-      // variant="dark"               // 👈 makes toggle icon white
-      className="border-0 bg-dark bg-opacity-100 py-2"
+      expanded={expanded}
+      onToggle={handleToggle}
+      collapseOnSelect
+      variant="dark"
+      className="py-2 sticky-top shadow-sm"
+      style={{ backgroundColor: "black", opacity:"1" }} // Slightly transparent
     >
       <Container>
-        {/* Logo */}
-        <Navbar.Brand
-          as={Link}
-          to="/"
-          className="d-flex align-items-center gap-2 text-white"
-        >
-          <img
-            src="/pexels-glenda-thompson-47135804-35061378.jpg"
-            alt="Used Car Logo"
-            height="40"
+        {/* Brand Logo */}
+        <Navbar.Brand as={Link} to="/" onClick={closeNav}>
+          <img 
+            src="/logo.jpg" 
+            alt="Used Car Logo" 
+            height="40" 
+            className="d-inline-block align-top"
           />
-          <span className="fw-bold fs-5">AutoMart</span>
         </Navbar.Brand>
 
-        {/* Toggle */}
+        {/* Mobile Toggle Button */}
         <Navbar.Toggle aria-controls="usedcar-navbar" />
 
-        {/* Menu */}
+        {/* Collapsible Content */}
         <Navbar.Collapse id="usedcar-navbar">
-          <Nav className="ms-auto align-items-lg-center gap-lg-4 text-center">
-            <Nav.Link
-              as={Link}
-              to="/about"
-              className="fw-semibold text-white"
-            >
+          <Nav className="ms-auto align-items-center flex-nowrap gap-3">
+            {/* Links in same line */}
+            <Nav.Link as={NavLink} to="/about" onClick={closeNav}>
               About Us
             </Nav.Link>
-
-            <Nav.Link
-              as={Link}
-              to="/services"
-              className="fw-semibold text-white"
-            >
+            <Nav.Link as={NavLink} to="/services" onClick={closeNav}>
               Services
             </Nav.Link>
-
-            <Nav.Link
-              as={Link}
-              to="/collections"
-              className="fw-semibold text-white"
-            >
+            <Nav.Link as={NavLink} to="/collections" onClick={closeNav}>
               Collections
             </Nav.Link>
-
-            <Nav.Link
-              as={Link}
-              to="/contact"
-              className="fw-semibold text-white"
-            >
+            <Nav.Link as={NavLink} to="/contact" onClick={closeNav}>
               Contact Us
             </Nav.Link>
 
             {/* Action Buttons */}
-            <div className="d-flex gap-2 ms-lg-3 mt-3 mt-lg-0 justify-content-center">
-              <Button
-                // as={Link}
-                // to="/buy"
-                variant="outline-light"
-                className="px-4"
-              >
+            <div className="d-flex flex-row gap-2 ms-3">
+              <Link to="/collections" className="btn btn-outline-light px-4">
                 Buy Car
-              </Button>
-
-              <Button
-                // // as={Link}
-                // to="/sell"
-                variant="warning"
-                onClick={()=>navigate('/selling')}
-                className="px-4 fw-semibold"
-              >
+              </Link>
+              <Link to="/selling" className="btn btn-warning px-4 fw-bold">
                 Sell Car
-              </Button>
+              </Link>
             </div>
           </Nav>
         </Navbar.Collapse>

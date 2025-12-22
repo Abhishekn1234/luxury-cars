@@ -6,7 +6,9 @@ export default function Contact() {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, amount: 0.2 });
   const controls = useAnimation();
-
+  useEffect(()=>{
+    window.scrollTo({top:0,behavior:"smooth"})
+  })
   useEffect(() => {
     if (inView) {
       controls.start("visible");

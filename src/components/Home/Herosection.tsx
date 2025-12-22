@@ -1,6 +1,7 @@
 import { Button, Container } from "react-bootstrap";
 import { motion, useAnimation, useInView, type Variants } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 interface HeroSectionProps {
   style?: React.CSSProperties;
 }
@@ -9,7 +10,7 @@ export default function HeroSection({ style }: HeroSectionProps) {
   const inView = useInView(ref, { once: true });
   const controls = useAnimation();
   const [isHovered, setIsHovered] = useState(false);
-
+ const navigate=useNavigate();
   useEffect(() => {
     if (inView) {
       controls.start("visible");
@@ -159,7 +160,7 @@ const itemVariants: Variants = {
                   variant="info"
                   className="px-5 py-3 fw-bold rounded-pill position-relative overflow-hidden"
                 >
-                  <span className="text-white">
+                  <span className="text-white" onClick={()=>navigate('/collections')}>
                     Browse Cars
                   </span>
                 </Button>
@@ -172,6 +173,7 @@ const itemVariants: Variants = {
                 <Button
                   size="lg"
                   variant="outline-light"
+                  onClick={()=>navigate('/selling')}
                   className="px-5 py-3 fw-bold rounded-pill border-2"
                 >
                   Sell Your Car
