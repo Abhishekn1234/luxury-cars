@@ -3,12 +3,11 @@
   "version": "1.0.0",
   "main": "index.js",
   "type": "commonjs",
-  "scripts": {
-    "start": "node dist/server.js",
-    "dev": "nodemon src/server.ts",
-    "build": "tsc",
-    "postinstall": "if [ -f ./node_modules/.bin/tsc ]; then chmod +x ./node_modules/.bin/tsc; fi"
-  },
+ "scripts": {
+  "dev": "nodemon src/server.ts",
+  "build": "tsc",
+  "start": "node dist/server.js"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
