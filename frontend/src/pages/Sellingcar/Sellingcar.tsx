@@ -1,7 +1,8 @@
-import { useState, type ChangeEvent, type FormEvent } from 'react';
+import { useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { Container, Card, Form, Row, Col, Button } from 'react-bootstrap';
 import { FaCar, FaUser, FaMapMarkerAlt, FaCog, FaCamera } from 'react-icons/fa';
 import type { CarForm } from '../../components/Sellingacar/selling';
+import { toast } from 'react-toastify';
 
 export default function SellingCar() {
   const initialForm: CarForm = {
@@ -34,6 +35,7 @@ export default function SellingCar() {
   };
 
   const [form, setForm] = useState<CarForm>(initialForm);
+const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -52,13 +54,58 @@ export default function SellingCar() {
     }
   };
 
-  const handleReset = () => setForm(initialForm);
+  const handleReset = () => {
+  setForm(initialForm);
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    console.log("Form data:", form);
-    alert("Form submitted! Check console for data.");
-  };
+  // Clear the file input in DOM
+  if (fileInputRef.current) {
+    fileInputRef.current.value = "";
+  }
+};
+
+
+const handleSubmit = async (e: FormEvent) => {
+  e.preventDefault();
+
+  const formData = new FormData();
+
+  Object.entries(form).forEach(([key, value]) => {
+    if (value !== null && value !== undefined) {
+      if (value instanceof File) formData.append(key, value);
+      else if (typeof value === "boolean") formData.append(key, value ? "true" : "false");
+      else formData.append(key, value.toString());
+    }
+  });
+
+  try {
+    const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/selling`, {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await res.json().catch(() => null);
+
+    if (!res.ok) {
+      // Show validation or server errors
+      const message = data?.message || `Server error: ${res.status} ${res.statusText}`;
+      toast.error(message);
+      return;
+    }
+
+    if (data?.success) {
+      toast.success("Form submitted successfully!");
+      handleReset();
+    } else {
+      toast.error(data?.message || "Error submitting form!");
+    }
+  } catch (err: any) {
+    console.error(err);
+    toast.error(err?.message || "Network or server error!");
+  }
+};
+
+
+
 
   return (
     <Container 
@@ -70,6 +117,7 @@ export default function SellingCar() {
         backgroundImage: "radial-gradient(circle at 20% 30%, #1d0202ff 0%, #000 100%)"
       }}
     >
+    
       <div className="text-center mb-5">
         <h1 className="display-5 fw-bold text-white mb-3">
           <FaCar className="me-3" style={{ color: "#007bff" }} />
@@ -594,18 +642,20 @@ export default function SellingCar() {
                         Vehicle Image
                       </Form.Label>
                       <Form.Control
-                        type="file"
-                        name="vehicleImage"
-                        onChange={handleImageChange}
-                        accept="image/*"
-                        style={{ 
-                          backgroundColor: "#222", 
-                          color: "#fff",
-                          border: "1px solid #333",
-                          borderRadius: "10px",
-                          padding: "8px"
-                        }}
-                      />
+  type="file"
+  name="vehicleImage"
+  ref={fileInputRef}   // <-- add this
+  onChange={handleImageChange}
+  accept="image/*"
+  style={{ 
+    backgroundColor: "#222", 
+    color: "#fff",
+    border: "1px solid #333",
+    borderRadius: "10px",
+    padding: "8px"
+  }}
+/>
+
                     </Form.Group>
                   </Col>
                 </Row>
