@@ -32,7 +32,6 @@ export default function Contact() {
 const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
   e.preventDefault();
 
-  // Show a toast immediately
   const toastId = toast.info("Sending message...", { autoClose: false });
 
   try {
@@ -42,10 +41,16 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       body: JSON.stringify(formData),
     });
 
-    const data = await res.json();
+    const data = await res.json().catch(() => ({ success: false, message: 'Invalid server response' }));
 
-    // Remove the "sending" toast
+    // Remove "sending" toast
     toast.dismiss(toastId);
+
+    if (!res.ok) {
+      // If HTTP status is not OK, show backend message
+      toast.error(data.message || `Server error: ${res.status}`);
+      return;
+    }
 
     if (data.success) {
       toast.success("Message sent! Check your email for confirmation.");
@@ -53,9 +58,9 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     } else {
       toast.error(data.message || "Failed to send message");
     }
-  } catch (err) {
+  } catch (err: any) {
     toast.dismiss(toastId);
-    toast.error("Something went wrong. Please try again later.");
+    toast.error(err?.message || "Something went wrong. Please try again later.");
   }
 };
 
