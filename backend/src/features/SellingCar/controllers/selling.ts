@@ -10,8 +10,22 @@ export const submitCarForm = async (req: MulterRequest, res: Response) => {
   try {
     const data = req.body;
 
-    // handle file upload if exists
+    // Handle booleans
+    data.noc = data.noc === 'true';
+    data.isAgree = data.isAgree === 'true';
+
+    // Handle numbers
+    if (data.odometer) data.odometer = Number(data.odometer);
+
+    // Handle file upload if exists
     if (req.file) {
+      const allowedTypes = ["image/jpeg", "image/jpg", "image/png"];
+      if (!allowedTypes.includes(req.file.mimetype)) {
+        return res.status(400).json({ success: false, message: "Invalid image type" });
+      }
+      if (req.file.size > 5 * 1024 * 1024) {
+        return res.status(400).json({ success: false, message: "Image too large" });
+      }
       data.vehicleImage = `/uploads/${req.file.filename}`;
     }
 
@@ -27,3 +41,4 @@ export const submitCarForm = async (req: MulterRequest, res: Response) => {
     return res.status(status).json({ success: false, message });
   }
 };
+
