@@ -29,9 +29,11 @@ export default function Contact() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
 const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
   e.preventDefault();
+
+  // Show a toast immediately
+  const toastId = toast.info("Sending message...", { autoClose: false });
 
   try {
     const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/contact`, {
@@ -42,6 +44,9 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
     const data = await res.json();
 
+    // Remove the "sending" toast
+    toast.dismiss(toastId);
+
     if (data.success) {
       toast.success("Message sent! Check your email for confirmation.");
       setFormData({ firstName: "", lastName: "", email: "", message: "" });
@@ -49,9 +54,11 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       toast.error(data.message || "Failed to send message");
     }
   } catch (err) {
+    toast.dismiss(toastId);
     toast.error("Something went wrong. Please try again later.");
   }
 };
+
 
 
   const fadeUp: Variants = {

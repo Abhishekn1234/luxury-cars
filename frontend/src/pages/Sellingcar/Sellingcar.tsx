@@ -67,8 +67,9 @@ const fileInputRef = useRef<HTMLInputElement | null>(null);
 const handleSubmit = async (e: FormEvent) => {
   e.preventDefault();
 
-  const formData = new FormData();
+  toast.info("Submitting your form...", { autoClose: false, toastId: "submitting" });
 
+  const formData = new FormData();
   Object.entries(form).forEach(([key, value]) => {
     if (value !== null && value !== undefined) {
       if (value instanceof File) formData.append(key, value);
@@ -85,10 +86,11 @@ const handleSubmit = async (e: FormEvent) => {
 
     const data = await res.json().catch(() => null);
 
+    // Remove the "submitting" toast
+    toast.dismiss("submitting");
+
     if (!res.ok) {
-      // Show validation or server errors
-      const message = data?.message || `Server error: ${res.status} ${res.statusText}`;
-      toast.error(message);
+      toast.error(data?.message || `Server error: ${res.status}`);
       return;
     }
 
@@ -99,7 +101,7 @@ const handleSubmit = async (e: FormEvent) => {
       toast.error(data?.message || "Error submitting form!");
     }
   } catch (err: any) {
-    console.error(err);
+    toast.dismiss("submitting");
     toast.error(err?.message || "Network or server error!");
   }
 };
