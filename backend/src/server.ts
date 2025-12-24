@@ -5,6 +5,7 @@ import sellingCar from "./features/SellingCar/routes/selling"
 dotenv.config();
 import contactRoutes from "./features/ContactUs/routes/contact";
 import { connectDB } from './features/config/db';
+import adminRoutes from "./features/AdminAuth/routes/adminroutes";
 import path from 'path';
 const app = express();
 const allowedOrigins = [
@@ -36,6 +37,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 app.use("/api", contactRoutes);
 app.use('/api/selling',sellingCar);
+app.use('/api/auth',adminRoutes);
 // Example route
 app.get('/', (req, res) => {
   res.send('API running...');
