@@ -9,7 +9,10 @@ import path from 'path';
 const app = express();
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://luxury-cars-nu.vercel.app"
+  "https://luxury-cars-nu.vercel.app",
+  "https://luxury-cars-ms59.vercel.app",
+  "https://luxury-cars-1-tydv.onrender.com",
+  "https://luxury-cars-sable.vercel.app"
 ];
 
 app.use(cors({
