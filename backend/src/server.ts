@@ -13,7 +13,8 @@ const allowedOrigins = [
   "https://luxury-cars-nu.vercel.app",
   "https://luxury-cars-ms59.vercel.app",
   "https://luxury-cars-1-tydv.onrender.com",
-  "https://luxury-cars-sable.vercel.app"
+  "https://luxury-cars-sable.vercel.app",
+  "https://admin-luxury-cars.vercel.app"
 ];
 
 app.use(cors({
