@@ -26,7 +26,7 @@ export default function TestDrive() {
         console.log(res);
         const data = await res.json();
         console.log(data);
-        setTestDrives(data.data);
+        setTestDrives(data);
       } catch (error) {
         console.error(error);
         toast.error("Failed to load test drives");
@@ -74,7 +74,7 @@ export default function TestDrive() {
       </table>
 
       {/* Pagination */}
-      <div className="flex justify-center mt-4 gap-2">
+      <div className="flex justify-end mt-4 gap-2">
         <button
           onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
           disabled={currentPage === 1}
