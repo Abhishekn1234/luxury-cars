@@ -1,8 +1,7 @@
 import { Card, Container, Row, Col, Button, Modal, Form } from "react-bootstrap";
-import {Badge} from "react-bootstrap";
-import { Shield, Star, ChevronRight, CheckCircle, Users, Clock, Award, Car, Phone, MessageCircle } from "lucide-react";
+import { Badge } from "react-bootstrap";
+import { Star, ChevronRight, CheckCircle, Users, Clock, Award, Car, Phone, MessageCircle } from "lucide-react";
 import type { JSX } from "react";
-import { GiGears, GiSpeedometer } from "react-icons/gi";
 import { useEffect, useState, useRef } from "react";
 import { toast } from "react-toastify";
 
@@ -30,40 +29,21 @@ interface FAQ {
   answer: string;
 }
 
-const services: Service[] = [
-  {
-    id: 1,
-    icon: <Shield size={40} />,
-    title: "Certified Inspection",
-    description: "All vehicles undergo 150+ point thorough inspections by certified technicians to ensure quality and reliability.",
-    gradient: "linear-gradient(135deg, #2196F3 0%, #1976D2 100%)",
-    features: ["150+ Point Inspection", "Engine Diagnostics", "Safety Check", "History Verification"]
-  },
-  {
-    id: 2,
-    icon: <Star size={40} />,
-    title: "Premium Vehicles",
-    description: "We offer only premium pre-owned vehicles, handpicked for performance, style, and long-term value.",
-    gradient: "linear-gradient(135deg, #FFD700 0%, #FFC107 100%)",
-    features: ["Luxury Brands", "Low Mileage", "Well Maintained", "Full Service History"]
-  },
-  {
-    id: 3,
-    icon: <GiSpeedometer size={40} />,
-    title: "Performance Testing",
-    description: "Comprehensive testing for engine, transmission, brakes, and safety systems to guarantee optimal performance.",
-    gradient: "linear-gradient(135deg, #00BCD4 0%, #0097A7 100%)",
-    features: ["Dyno Testing", "Road Testing", "Brake Analysis", "Suspension Check"]
-  },
-  {
-    id: 4,
-    icon: <GiGears size={40} />,
-    title: "Maintenance & Support",
-    description: "Comprehensive after-sale maintenance plans, extended warranty, and 24/7 roadside assistance.",
-    gradient: "linear-gradient(135deg, #4CAF50 0%, #388E3C 100%)",
-    features: ["12-Month Warranty", "Free Service", "24/7 Support", "Roadside Assistance"]
-  },
-];
+interface ApiServiceItem {
+  title: string;
+  description: string;
+  points: string[];
+}
+
+interface ApiResponseItem {
+  _id: string;
+  services: ApiServiceItem[];
+  image: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
 
 const additionalServices = [
   {
@@ -146,11 +126,103 @@ const faqs: FAQ[] = [
   },
 ];
 
+// Define icon mapping for different service types
+const serviceIconMap: Record<string, JSX.Element> = {
+  'Certified Inspection': <CheckCircle size={32} />,
+  'Financing Options': <Award size={32} />,
+  'Warranty & Protection': <Star size={32} />,
+  'Trade-In Program': <Car size={32} />,
+  'Personal Consultation': <Users size={32} />,
+  'Test Drive Arrangement': <Clock size={32} />,
+};
+
+// Define gradient mapping for different service types
+const serviceGradientMap: Record<string, string> = {
+  'Certified Inspection': "linear-gradient(135deg, #4CAF50 0%, #2196F3 100%)",
+  'Financing Options': "linear-gradient(135deg, #9C27B0 0%, #673AB7 100%)",
+  'Warranty & Protection': "linear-gradient(135deg, #FF9800 0%, #FF5722 100%)",
+  'Trade-In Program': "linear-gradient(135deg, #3F51B5 0%, #2196F3 100%)",
+  'Personal Consultation': "linear-gradient(135deg, #009688 0%, #4CAF50 100%)",
+  'Test Drive Arrangement': "linear-gradient(135deg, #FF5722 0%, #FF9800 100%)",
+};
+
+// Default gradient for unknown services
+const defaultGradient = "linear-gradient(135deg, #2196F3 0%, #1976D2 100%)";
+const defaultIcon = <CheckCircle size={32} />;
+
 export default function Services() {
   const [isVisible, setIsVisible] = useState(false);
   const [activeFAQ, setActiveFAQ] = useState<number | null>(null);
   const sectionRefs = useRef<(HTMLDivElement | null)[]>([]);
-const [hover, setHover] = useState(false);
+  const [hover, setHover] = useState(false);
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [showModals, setShowModals] = useState(false);
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
+
+  interface Car {
+    _id: string;
+    name: string;
+    model: string;
+  }
+
+  const [cars, setCars] = useState<Car[]>([]);
+  const [selectedCar, setSelectedCar] = useState<string>("");
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/services`);
+        const data: ApiResponseItem[] = await res.json();
+        console.log("Fetched services:", data);
+        
+        // Flatten and map the services from API response
+        const flattenedServices: Service[] = [];
+        let idCounter = 1;
+        
+        data.forEach((item: ApiResponseItem) => {
+          if (item.services && Array.isArray(item.services)) {
+            item.services.forEach((serviceItem: ApiServiceItem) => {
+              const mappedService: Service = {
+                id: idCounter++,
+                icon: serviceIconMap[serviceItem.title] || defaultIcon,
+                title: serviceItem.title,
+                description: serviceItem.description,
+                gradient: serviceGradientMap[serviceItem.title] || defaultGradient,
+                features: serviceItem.points || []
+              };
+              flattenedServices.push(mappedService);
+            });
+          }
+        });
+        
+        console.log("Mapped services:", flattenedServices);
+        setServices(flattenedServices);
+      } catch (error) {
+        console.error("Failed to fetch services", error);
+        toast.error("Failed to load services. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchServices();
+  }, []);
+
+  useEffect(() => {
+    const fetchCars = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/cars`);
+        const data = await res.json();
+        setCars(data.data || []);
+      } catch (error) {
+        console.error("Failed to fetch cars", error);
+      }
+    };
+
+    fetchCars();
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -177,72 +249,55 @@ const [hover, setHover] = useState(false);
       element.scrollIntoView({ behavior: 'smooth' });
     }
   };
-  const [showModal, setShowModal] = useState(false);
- 
+
   const handleClose = () => setShowModal(false);
   const handleShow = () => setShowModal(true);
-interface Car {
-  _id: string;
-  name: string;
-  model: string;
-}
+  
+  const handleCloses = () => {
+    setShowModals(false);
+    setSelectedService(null);
+  };
+  
+  const handleShows = (service: Service) => {
+    setSelectedService(service);
+    setShowModals(true);
+  };
 
-const [cars, setCars] = useState<Car[]>([]);
-const [selectedCar, setSelectedCar] = useState<string>("");
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
 
-useEffect(() => {
-  const fetchCars = async () => {
+    const data = {
+      firstName: (form.elements.namedItem("firstName") as HTMLInputElement).value,
+      lastName: (form.elements.namedItem("lastName") as HTMLInputElement).value,
+      email: (form.elements.namedItem("email") as HTMLInputElement).value,
+      phone: (form.elements.namedItem("phone") as HTMLInputElement).value,
+      car: selectedCar,
+    };
+
     try {
-      const res = await fetch("http://localhost:5000/api/cars");
-      const data = await res.json();
-      setCars(data.data);
-    } catch (error) {
-      console.error("Failed to fetch cars", error);
-    }
-  };
+      const res = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/services/testdrive`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        }
+      );
 
-  fetchCars();
-}, []);
-const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
-  const form = e.currentTarget;
+      const result = await res.json();
 
-  const data = {
-    firstName: (form.elements.namedItem("firstName") as HTMLInputElement).value,
-    lastName: (form.elements.namedItem("lastName") as HTMLInputElement).value,
-    email: (form.elements.namedItem("email") as HTMLInputElement).value,
-    phone: (form.elements.namedItem("phone") as HTMLInputElement).value,
-    car: selectedCar,
-  };
-
-  try {
-    const res = await fetch(
-      "http://localhost:5000/api/services/testdrive",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+      if (!res.ok) {
+        throw new Error(result.message || "Failed to schedule test drive");
       }
-    );
 
-    const result = await res.json();
-
-    if (!res.ok) {
-      throw new Error(result.message || "Failed to schedule test drive");
+      toast.success("Test Drive Scheduled Successfully 🚗");
+      handleClose();
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.message || "Something went wrong ❌");
     }
-
-    toast.success("Test Drive Scheduled Successfully 🚗");
-    handleClose();
-  } catch (error: any) {
-    console.error(error);
-    toast.error(error.message || "Something went wrong ❌");
-  }
-};
-  const [showModals, setShowModals] = useState(false);
-
-  const handleCloses = () => setShowModals(false);
-  const handleShows = () => setShowModals(true);
-
+  };
 
   return (
     <div 
@@ -253,8 +308,6 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         position: "relative"
       }}
     >
-    
-
       {/* Animated Background Elements */}
       <div 
         style={{
@@ -271,7 +324,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       <Container className="py-5 position-relative" style={{ zIndex: 1 }}>
         {/* Hero Section */}
         <div 
-          ref={(el) =>{ sectionRefs.current[0] = el}}
+          ref={(el) => { sectionRefs.current[0] = el }}
           id="hero"
           className={`text-center mb-5 pt-5 transition-slide-up ${isVisible ? 'visible' : ''}`}
           style={{
@@ -284,29 +337,25 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
             justifyContent: "center"
           }}
         >
-         
-    <Badge
-  style={{
-    backgroundColor: "rgba(33, 150, 243, 0.1)",
-    color: "#e3e6e9ff",
-    fontSize: "0.8rem",
-    borderRadius: "12px", // small rounded corners
-    padding: "15px 0", // vertical padding, full width
-    display: "block", // make it a block to take horizontal space
-    textAlign: "center", // center the text
-    fontWeight: 600,
-    letterSpacing: "1px",
-    width: "40%", // adjust width as needed
-    maxWidth: "200px", // optional max width
-    margin: "0 auto", // center horizontally
-  }}
->
-  PREMIUM CAR SOLUTIONS
-</Badge>
+          <Badge
+            style={{
+              backgroundColor: "rgba(33, 150, 243, 0.1)",
+              color: "#e3e6e9ff",
+              fontSize: "0.8rem",
+              borderRadius: "12px",
+              padding: "15px 0",
+              display: "block",
+              textAlign: "center",
+              fontWeight: 600,
+              letterSpacing: "1px",
+              width: "40%",
+              maxWidth: "200px",
+              margin: "0 auto",
+            }}
+          >
+            PREMIUM CAR SOLUTIONS
+          </Badge>
 
-
-           
-        
           <h1 className="display-3 fw-bold mb-4">
             <span style={{ color: "#fff" }}>Driving </span>
             <span style={{ color: "#2196F3" }}>Excellence</span>
@@ -318,49 +367,48 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
             From selection to aftercare, we're with you every mile of the way.
           </p>
           <div className="d-flex flex-wrap justify-content-center gap-3">
-           <Button
-  variant="primary"
-  size="lg"
-  className="rounded-pill px-5 py-3 fw-semibold"
-  onClick={() => scrollToSection('services')}
-  style={{
-    background: "linear-gradient(135deg, #2196F3 0%, #1976D2 100%)",
-    border: "none",
-    boxShadow: "0 8px 25px rgba(33, 150, 243, 0.4)",
-    transition: "all 0.3s ease",
-  }}
-  onMouseEnter={(e) => {
-    e.currentTarget.style.transform = "scale(1.05)";
-    e.currentTarget.style.boxShadow = "0 12px 30px rgba(33, 150, 243, 0.6)";
-  }}
-  onMouseLeave={(e) => {
-    e.currentTarget.style.transform = "scale(1)";
-    e.currentTarget.style.boxShadow = "0 8px 25px rgba(33, 150, 243, 0.4)";
-  }}
->
-  Explore Services
-</Button>
+            <Button
+              variant="primary"
+              size="lg"
+              className="rounded-pill px-5 py-3 fw-semibold"
+              onClick={() => scrollToSection('services')}
+              style={{
+                background: "linear-gradient(135deg, #2196F3 0%, #1976D2 100%)",
+                border: "none",
+                boxShadow: "0 8px 25px rgba(33, 150, 243, 0.4)",
+                transition: "all 0.3s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "scale(1.05)";
+                e.currentTarget.style.boxShadow = "0 12px 30px rgba(33, 150, 243, 0.6)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "scale(1)";
+                e.currentTarget.style.boxShadow = "0 8px 25px rgba(33, 150, 243, 0.4)";
+              }}
+            >
+              Explore Services
+            </Button>
 
-<Button
-  variant="outline-light"
-  size="lg"
-  className="rounded-pill px-5 py-3 fw-semibold"
-  onClick={() => scrollToSection('contact')}
-  style={{
-    transition: "all 0.3s ease",
-  }}
-  onMouseEnter={(e) => {
-    e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.1)";
-    e.currentTarget.style.transform = "scale(1.05)";
-  }}
-  onMouseLeave={(e) => {
-    e.currentTarget.style.backgroundColor = "transparent";
-    e.currentTarget.style.transform = "scale(1)";
-  }}
->
-  Contact Us
-</Button>
-
+            <Button
+              variant="outline-light"
+              size="lg"
+              className="rounded-pill px-5 py-3 fw-semibold"
+              onClick={() => scrollToSection('contact')}
+              style={{
+                transition: "all 0.3s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.1)";
+                e.currentTarget.style.transform = "scale(1.05)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "transparent";
+                e.currentTarget.style.transform = "scale(1)";
+              }}
+            >
+              Contact Us
+            </Button>
           </div>
         </div>
 
@@ -394,10 +442,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
         {/* Main Services */}
         <div 
-          ref={(el) => {
-  sectionRefs.current[1] = el; // assign element
-}}
-
+          ref={(el) => { sectionRefs.current[1] = el }}
           id="services"
           className="mb-5 py-5"
         >
@@ -406,116 +451,117 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
             <p className="text-white-50">Comprehensive solutions for your automotive needs</p>
           </div>
           
-          <Row xs={1} sm={2} lg={4} className="g-4">
-            {services.map((service, index) => (
-              <Col key={service.id}>
-                <Card
-                  className={`h-100 text-center border-0 rounded-4 shadow-lg service-card transition-slide-up ${
-                    isVisible ? 'visible' : ''
-                  }`}
-                  style={{
-                    transition: `transform 0.5s ease ${index * 0.1}s, opacity 0.5s ease ${index * 0.1}s`,
-                    transform: isVisible ? "translateY(0)" : "translateY(50px)",
-                    opacity: isVisible ? 1 : 0,
-                    background: "linear-gradient(145deg, #111, #1a1a1a)",
-                    color: "#fff",
-                    cursor: "pointer",
-                    overflow: "hidden",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = "translateY(-10px)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "translateY(0)";
-                  }}
-                >
-                  {/* Icon Background */}
-                  <div 
-                    className="position-absolute"
+          {loading ? (
+            <div className="text-center py-5">
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+              <p className="mt-3">Loading services...</p>
+            </div>
+          ) : services.length === 0 ? (
+            <div className="text-center py-5">
+              <p className="text-white-50">No services available at the moment.</p>
+            </div>
+          ) : (
+            <Row xs={1} sm={2} lg={4} className="g-4">
+              {services.map((service, index) => (
+                <Col key={service.id}>
+                  <Card
+                    className={`h-100 text-center border-0 rounded-4 shadow-lg service-card transition-slide-up ${
+                      isVisible ? 'visible' : ''
+                    }`}
                     style={{
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      height: "150px",
-                      background: service.gradient,
-                      opacity: 0.1,
-                      zIndex: 0,
+                      transition: `transform 0.5s ease ${index * 0.1}s, opacity 0.5s ease ${index * 0.1}s`,
+                      transform: isVisible ? "translateY(0)" : "translateY(50px)",
+                      opacity: isVisible ? 1 : 0,
+                      background: "linear-gradient(145deg, #111, #1a1a1a)",
+                      color: "#fff",
+                      cursor: "pointer",
+                      overflow: "hidden",
                     }}
-                  />
-                  
-                  <Card.Body className="d-flex flex-column align-items-center position-relative p-4">
-                    {/* Icon Container */}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = "translateY(-10px)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "translateY(0)";
+                    }}
+                  >
+                    {/* Icon Background */}
                     <div 
-                      className="mb-4 p-3 rounded-4 d-flex align-items-center justify-content-center"
+                      className="position-absolute"
                       style={{
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        height: "150px",
                         background: service.gradient,
-                        width: "80px",
-                        height: "80px",
-                        boxShadow: "0 8px 20px rgba(0,0,0,0.3)",
+                        opacity: 0.1,
+                        zIndex: 0,
                       }}
-                    >
-                      <div style={{ color: "#fff" }}>
-                        {service.icon}
-                      </div>
-                    </div>
+                    />
                     
-                    <Card.Title className="mb-3 fw-bold fs-5">
-                      {service.title}
-                    </Card.Title>
-                    
-                    <Card.Text className="text-white-50 mb-4 flex-grow-1">
-                      {service.description}
-                    </Card.Text>
-                    
-                    {/* Features List */}
-                    <div className="w-100 mb-3">
-                      {service.features.map((feature, idx) => (
-                        <div key={idx} className="d-flex align-items-center gap-2 mb-2">
-                          <CheckCircle size={16} color="#4CAF50" />
-                          <small className="text-white-75">{feature}</small>
+                    <Card.Body className="d-flex flex-column align-items-center position-relative p-4">
+                      {/* Icon Container */}
+                      <div 
+                        className="mb-4 p-3 rounded-4 d-flex align-items-center justify-content-center"
+                        style={{
+                          background: service.gradient,
+                          width: "80px",
+                          height: "80px",
+                          boxShadow: "0 8px 20px rgba(0,0,0,0.3)",
+                        }}
+                      >
+                        <div style={{ color: "#fff" }}>
+                          {service.icon}
                         </div>
-                      ))}
-                    </div>
-                    
-                  <Button
-        variant="link"
-        className="text-decoration-none d-flex align-items-center justify-content-center gap-2 px-3 py-2"
-        style={{
-          color: "#2196F3",
-          fontWeight: 600,
-          backgroundColor: hover ? "rgba(33, 150, 243, 0.2)" : "rgba(33, 150, 243, 0.1)",
-          border: "none",
-          borderRadius: "50px",
-          transition: "all 0.3s ease",
-        }}
-        onMouseEnter={() => setHover(true)}
-        onMouseLeave={() => setHover(false)}
-        onClick={handleShows} // Open modal on click
-      >
-        Learn More
-        <ChevronRight size={18} />
-      </Button>
-       <Modal show={showModals} onHide={handleCloses} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Learn More</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p>
-            Here you can add any content you want to show when the user clicks "Learn More".
-            This could be details about a service, product, or any additional information.
-          </p>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloses}>
-            Close
-          </Button>
-        </Modal.Footer>
-      </Modal>
-                  </Card.Body>
-                </Card>
-              </Col>
-            ))}
-          </Row>
+                      </div>
+                      
+                      <Card.Title className="mb-3 fw-bold fs-5">
+                        {service.title}
+                      </Card.Title>
+                      
+                      <Card.Text className="text-white-50 mb-4 flex-grow-1">
+                        {service.description}
+                      </Card.Text>
+                      
+                      {/* Features List */}
+                      <div className="w-100 mb-3">
+                        {service.features && service.features.length > 0 ? (
+                          service.features.slice(0, 3).map((feature, idx) => (
+                            <div key={idx} className="d-flex align-items-center gap-2 mb-2">
+                              <CheckCircle size={16} color="#4CAF50" />
+                              <small className="text-white-75">{feature}</small>
+                            </div>
+                          ))
+                        ) : (
+                          <small className="text-white-50">No features listed</small>
+                        )}
+                      </div>
+                      
+                      <Button
+                        variant="link"
+                        className="text-decoration-none d-flex align-items-center justify-content-center gap-2 px-3 py-2"
+                        style={{
+                          color: "#2196F3",
+                          fontWeight: 600,
+                          backgroundColor: hover ? "rgba(33, 150, 243, 0.2)" : "rgba(33, 150, 243, 0.1)",
+                          border: "none",
+                          borderRadius: "50px",
+                          transition: "all 0.3s ease",
+                        }}
+                        onMouseEnter={() => setHover(true)}
+                        onMouseLeave={() => setHover(false)}
+                        onClick={() => handleShows(service)}
+                      >
+                        Learn More
+                        <ChevronRight size={18} />
+                      </Button>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+          )}
         </div>
 
         {/* Additional Services */}
@@ -527,9 +573,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
           
           <Row className="g-4">
             {additionalServices.map((service, index) => (
-               
               <Col md={3} sm={6} key={service.id} id={index.toString()}>
-
                 <div className="p-4 rounded-4 h-100" style={{
                   background: "rgba(255, 255, 255, 0.05)",
                   border: "1px solid rgba(255, 255, 255, 0.1)",
@@ -566,7 +610,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
         {/* Testimonials */}
         <div 
-          ref={(el) => {sectionRefs.current[2] = el}}
+          ref={(el) => { sectionRefs.current[2] = el }}
           id="testimonials"
           className="mb-5 py-5"
         >
@@ -613,7 +657,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
         {/* FAQ Section */}
         <div 
-          ref={(el) => {sectionRefs.current[3] = el}}
+          ref={(el) => { sectionRefs.current[3] = el }}
           id="faq"
           className="mb-5 py-5"
         >
@@ -659,7 +703,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
         {/* Contact Section */}
         <div 
-          ref={(el) =>{ sectionRefs.current[4] = el}}
+          ref={(el) => { sectionRefs.current[4] = el }}
           id="contact"
           className="py-5"
         >
@@ -676,82 +720,30 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
                 Our team of experts is ready to assist you. Contact us today for a personalized consultation.
               </p>
               
-             <div className="d-flex flex-wrap justify-content-center gap-3 mb-4">
-      {/* Call Now Button */}
-      <Button
-        variant="primary"
-        size="lg"
-        className="rounded-pill px-4 py-3 fw-semibold d-flex align-items-center gap-2"
-        style={{
-          background: "linear-gradient(135deg, #2196F3 0%, #1976D2 100%)",
-          border: "none",
-        }}
-        onClick={() => window.open("tel:+919876543210")} // real phone number
-      >
-        <Phone size={20} />
-        Call Now
-      </Button>
+              <div className="d-flex flex-wrap justify-content-center gap-3 mb-4">
+                <Button
+                  variant="primary"
+                  size="lg"
+                  className="rounded-pill px-4 py-3 fw-semibold d-flex align-items-center gap-2"
+                  style={{
+                    background: "linear-gradient(135deg, #2196F3 0%, #1976D2 100%)",
+                    border: "none",
+                  }}
+                  onClick={() => window.open("tel:+919876543210")}
+                >
+                  <Phone size={20} />
+                  Call Now
+                </Button>
 
-      {/* Schedule Test Drive Button */}
-      <Button
-        variant="outline-light"
-        size="lg"
-        className="rounded-pill px-4 py-3 fw-semibold"
-        onClick={handleShow}
-      >
-        Schedule Test Drive
-      </Button>
-
-      {/* Modal */}
-      <Modal show={showModal} onHide={handleClose} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Schedule Test Drive</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form onSubmit={handleSubmit}>
-            <Form.Group className="mb-3" controlId="firstName">
-              <Form.Label>First Name</Form.Label>
-              <Form.Control type="text" name="firstName" placeholder="Enter first name" required />
-            </Form.Group>
-
-            <Form.Group className="mb-3" controlId="lastName">
-              <Form.Label>Last Name</Form.Label>
-              <Form.Control type="text" name="lastName" placeholder="Enter last name" required />
-            </Form.Group>
-
-            <Form.Group className="mb-3" controlId="email">
-              <Form.Label>Email</Form.Label>
-              <Form.Control type="email" name="email" placeholder="Enter email" required />
-            </Form.Group>
-
-            <Form.Group className="mb-3" controlId="phone">
-              <Form.Label>Phone Number</Form.Label>
-              <Form.Control type="tel" name="phone" placeholder="Enter phone number" required />
-            </Form.Group>
-
-            <Form.Group className="mb-3" controlId="car">
-              <Form.Label>Select Car</Form.Label>
-              <Form.Select
-                value={selectedCar}
-                onChange={(e) => setSelectedCar(e.target.value)}
-                required
-              >
-                  <option value="">Select a Car</option>
-                {cars.map((car) => (
-                  <option key={car._id} value={car._id}>
-                    {car.name} {car.model}
-                  </option>
-                ))}
-              </Form.Select>
-            </Form.Group>
-
-            <Button type="submit" variant="primary" className="w-100">
-              Submit
-            </Button>
-          </Form>
-        </Modal.Body>
-      </Modal>
-    </div>
+                <Button
+                  variant="outline-light"
+                  size="lg"
+                  className="rounded-pill px-4 py-3 fw-semibold"
+                  onClick={handleShow}
+                >
+                  Schedule Test Drive
+                </Button>
+              </div>
               
               <div className="row g-3">
                 <Col md={6}>
@@ -775,6 +767,123 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
           </div>
         </div>
       </Container>
+
+      {/* Service Details Modal */}
+      <Modal show={showModals} onHide={handleCloses} centered size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>{selectedService?.title}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedService && (
+            <>
+              <div className="text-center mb-4">
+                <div 
+                  className="mb-3 p-3 rounded-4 d-inline-flex align-items-center justify-content-center"
+                  style={{
+                    background: selectedService.gradient,
+                    width: "80px",
+                    height: "80px",
+                  }}
+                >
+                  <div style={{ color: "#fff" }}>
+                    {selectedService.icon}
+                  </div>
+                </div>
+                <h4 className="mb-3">{selectedService.title}</h4>
+                <p className="text-muted">{selectedService.description}</p>
+              </div>
+              
+              <h5 className="mb-3">Key Features:</h5>
+              <ul className="list-unstyled">
+                {selectedService.features && selectedService.features.length > 0 ? (
+                  selectedService.features.map((feature, index) => (
+                    <li key={index} className="mb-2 d-flex align-items-start">
+                      <CheckCircle size={18} color="#4CAF50" className="me-2 mt-1" />
+                      <span>{feature}</span>
+                    </li>
+                  ))
+                ) : (
+                  <li className="text-muted">No features listed</li>
+                )}
+              </ul>
+              
+              <div className="mt-4 p-3 rounded-3" style={{
+                background: "rgba(33, 150, 243, 0.1)"
+              }}>
+                <p className="mb-0">
+                  <strong>Interested in this service?</strong> Contact us to learn more about how we can help you with {selectedService.title.toLowerCase()}.
+                </p>
+              </div>
+            </>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloses}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={() => {
+            handleCloses();
+            scrollToSection('contact');
+          }}>
+            Contact Us
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Test Drive Modal */}
+      <Modal show={showModal} onHide={handleClose} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Schedule Test Drive</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={handleSubmit}>
+            <Row>
+              <Col md={6}>
+                <Form.Group className="mb-3" controlId="firstName">
+                  <Form.Label>First Name</Form.Label>
+                  <Form.Control type="text" name="firstName" placeholder="Enter first name" required />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group className="mb-3" controlId="lastName">
+                  <Form.Label>Last Name</Form.Label>
+                  <Form.Control type="text" name="lastName" placeholder="Enter last name" required />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Form.Group className="mb-3" controlId="email">
+              <Form.Label>Email</Form.Label>
+              <Form.Control type="email" name="email" placeholder="Enter email" required />
+            </Form.Group>
+
+            <Form.Group className="mb-3" controlId="phone">
+              <Form.Label>Phone Number</Form.Label>
+              <Form.Control type="tel" name="phone" placeholder="Enter phone number" required />
+            </Form.Group>
+
+            <Form.Group className="mb-3" controlId="car">
+              <Form.Label>Select Car</Form.Label>
+              <Form.Select
+                value={selectedCar}
+                onChange={(e) => setSelectedCar(e.target.value)}
+                required
+              >
+                <option value="">Select a Car</option>
+                {cars.map((car) => (
+                  <option key={car._id} value={car._id}>
+                    {car.name} {car.model}
+                  </option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+
+            <Button type="submit" variant="primary" className="w-100">
+              Submit
+            </Button>
+          </Form>
+        </Modal.Body>
+      </Modal>
 
       {/* Custom CSS */}
       <style>{`

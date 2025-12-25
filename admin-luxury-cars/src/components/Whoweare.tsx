@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 interface IWhoWeAre {
   _id?: string;
@@ -55,6 +56,7 @@ export default function Whoweare() {
 
   /* ---------------- SUBMIT ---------------- */
   const handleSubmit = async () => {
+  const savingToast = toast.loading("Saving data..."); // show loading toast
   try {
     setLoading(true);
 
@@ -83,24 +85,25 @@ export default function Whoweare() {
         fd,
         config
       );
+      toast.success("Updated successfully!", { id: savingToast });
     } else {
       await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/about`,
         fd,
         config
       );
+      toast.success("Added successfully!", { id: savingToast });
     }
 
     setOpen(false);
     fetchWhoWeAre();
   } catch (error) {
     console.error("Save failed", error);
+    toast.error("Failed to save. Please try again.", { id: savingToast });
   } finally {
     setLoading(false);
   }
 };
-
-
   /* ---------------- UI ---------------- */
   return (
     <div className="w-full">

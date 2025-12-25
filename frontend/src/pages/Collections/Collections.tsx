@@ -1,40 +1,36 @@
 
-
 import { useState, useEffect } from "react";
-import { Card, Form, Button, Badge, Row, Col, InputGroup, FormControl } from "react-bootstrap";
+import { Card, Form, Button, Badge, Row, Col, InputGroup, FormControl, Spinner,Modal } from "react-bootstrap";
 import { Search, Heart, Calendar, Gauge, Fuel, Settings, MapPin, Filter, Star, Zap, Shield } from "lucide-react";
 
 interface Car {
-  id: string;
+  _id: string;
   name: string;
   model: string;
   year: number;
   price: number;
-  mileage: string;
+  mileage: number;
   fuelType: string;
   transmission: string;
   location: string;
-  image: string;
-  condition: "Excellent" | "Good" | "Fair";
+  image: string[];
+  condition: "Excellent" | "Good" | "Fair" | "New";
   featured: boolean;
+  description?: string;
+  engineCapacity?: string;
+  color?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
-const mockCars: Car[] = [ 
-  { id: "1", name: "Mercedes-Benz S-Class", model: "S 500", year: 2022, price: 89500, mileage: "12,500 miles", fuelType: "Petrol", transmission: "Automatic", location: "New York, NY", image: "https://images.unsplash.com/photo-1758216383800-7023ee8ed42b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080", condition: "Excellent", featured: true }, 
-  { id: "2", name: "Porsche 911", model: "Carrera S", year: 2023, price: 125000, mileage: "5,200 miles", fuelType: "Petrol", transmission: "Automatic", location: "Los Angeles, CA", image: "https://images.unsplash.com/photo-1696581081941-ee00d3ed0a5e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080", condition: "Excellent", featured: true }, 
-  { id: "3", name: "Range Rover Sport", model: "HSE Dynamic", year: 2021, price: 72000, mileage: "28,000 miles", fuelType: "Diesel", transmission: "Automatic", location: "Miami, FL", image: "https://images.unsplash.com/photo-1633867179970-c54688bcfa33?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080", condition: "Good", featured: false }, 
-  { id: "4", name: "BMW 3 Series", model: "330i M Sport", year: 2022, price: 45000, mileage: "15,800 miles", fuelType: "Petrol", transmission: "Automatic", location: "Chicago, IL", image: "https://images.unsplash.com/photo-1765151055473-71debcca0f21?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080", condition: "Excellent", featured: false }, 
-  { id: "5", name: "Tesla Model 3", model: "Long Range", year: 2023, price: 52000, mileage: "8,500 miles", fuelType: "Electric", transmission: "Automatic", location: "San Francisco, CA", image: "https://images.unsplash.com/photo-1719772692993-933047b8ea4a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080", condition: "Excellent", featured: true }, 
-  { id: "6", name: "Mazda MX-5 Miata", model: "Grand Touring", year: 2021, price: 32000, mileage: "18,200 miles", fuelType: "Petrol", transmission: "Manual", location: "Austin, TX", image: "https://images.unsplash.com/photo-1656011475851-23f591606c0c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080", condition: "Good", featured: false }, 
-  { id: "7", name: "Ford F-150", model: "Raptor", year: 2022, price: 68000, mileage: "22,000 miles", fuelType: "Petrol", transmission: "Automatic", location: "Dallas, TX", image: "https://images.unsplash.com/photo-1741169067573-dd48612adf45?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080", condition: "Good", featured: false }, 
-  { id: "8", name: "Honda Civic", model: "Type R", year: 2023, price: 42000, mileage: "6,800 miles", fuelType: "Petrol", transmission: "Manual", location: "Seattle, WA", image: "https://images.unsplash.com/photo-1701314860844-cd2152fa9071?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080", condition: "Excellent", featured: false } 
-];
-
 export default function Collections() {
-    useEffect(() => {
-  window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-}, []);
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, []);
 
+  const [cars, setCars] = useState<Car[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFuelType, setSelectedFuelType] = useState("all");
   const [selectedTransmission, setSelectedTransmission] = useState("all");
@@ -43,24 +39,125 @@ export default function Collections() {
   const [favorites, setFavorites] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
   const [visibleCards, setVisibleCards] = useState<Set<string>>(new Set());
+const [selectedCar, setSelectedCar] = useState<Car | null>(null);
+const [showModal, setShowModal] = useState(false);
+
+const handleViewDetails = (car: Car) => {
+  setSelectedCar(car);
+  setShowModal(true);
+};
+
+const handleCloseModal = () => {
+  setSelectedCar(null);
+  setShowModal(false);
+};
+  // Fetch cars from API
+  useEffect(() => {
+    const fetchCars = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        console.log("Fetching cars from:", `${import.meta.env.VITE_BACKEND_URL}/api/cars`);
+        
+        const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/cars`);
+        
+        console.log("Response status:", response.status);
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error("Response error text:", errorText);
+          throw new Error(`Failed to fetch cars: ${response.status} ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        console.log("API Response data:", data);
+        
+        // Handle the specific response format: {data: [...], total: number}
+        if (data.data && Array.isArray(data.data)) {
+          setCars(data.data);
+        } else if (Array.isArray(data)) {
+          // Fallback: direct array response
+          setCars(data);
+        } else {
+          console.error("Unknown data format:", data);
+          throw new Error("Invalid data format received from API");
+        }
+        
+      } catch (err) {
+        console.error("Error fetching cars:", err);
+        setError(err instanceof Error ? err.message : "Failed to load cars");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCars();
+  }, []);
 
   const toggleFavorite = (carId: string) => {
-    setFavorites(prev => prev.includes(carId) ? prev.filter(id => id !== carId) : [...prev, carId]);
+    setFavorites(prev => 
+      prev.includes(carId) 
+        ? prev.filter(id => id !== carId) 
+        : [...prev, carId]
+    );
   };
 
-  const filteredCars = mockCars.filter(car => {
-    const matchesSearch = car.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          car.model.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFuel = selectedFuelType === "all" || car.fuelType === selectedFuelType;
-    const matchesTransmission = selectedTransmission === "all" || car.transmission === selectedTransmission;
+  // Format mileage for display
+  const formatMileage = (mileage: number) => {
+    return mileage.toLocaleString() + " miles";
+  };
 
+  // Safe access for car properties with defaults
+  const getCarName = (car: Car) => car.name || "Unnamed Vehicle";
+  const getCarModel = (car: Car) => car.model || "";
+  const getCarYear = (car: Car) => car.year || "N/A";
+  const getCarPrice = (car: Car) => car.price || 0;
+  const getCarMileage = (car: Car) => car.mileage || 0;
+  const getCarFuelType = (car: Car) => car.fuelType || "Unknown";
+  const getCarTransmission = (car: Car) => car.transmission || "Unknown";
+  const getCarLocation = (car: Car) => car.location || "Location not specified";
+  const getCarCondition = (car: Car) => car.condition || "Good";
+  const getCarFeatured = (car: Car) => car.featured || false;
+  const getCarImages = (car: Car) => {
+  if (car.image) {
+    return [`${import.meta.env.VITE_BACKEND_URL}/uploads/cars/${car.image}`];
+  }
+  return [];
+};
+
+
+  const filteredCars = cars.filter(car => {
+    const name = getCarName(car).toLowerCase();
+    const model = getCarModel(car).toLowerCase();
+    const description = car.description?.toLowerCase() || "";
+    
+    const matchesSearch = searchQuery === "" || 
+      name.includes(searchQuery.toLowerCase()) ||
+      model.includes(searchQuery.toLowerCase()) ||
+      description.includes(searchQuery.toLowerCase());
+
+    const fuelType = getCarFuelType(car);
+    const matchesFuel = selectedFuelType === "all" || fuelType === selectedFuelType;
+
+    const transmission = getCarTransmission(car);
+    const matchesTransmission = selectedTransmission === "all" || transmission === selectedTransmission;
+
+    const price = getCarPrice(car);
     let matchesPrice = true;
-    if (selectedPriceRange === "0-50000") matchesPrice = car.price <= 50000;
-    else if (selectedPriceRange === "50000-75000") matchesPrice = car.price > 50000 && car.price <= 75000;
-    else if (selectedPriceRange === "75000+") matchesPrice = car.price > 75000;
+    if (selectedPriceRange === "0-50000") {
+      matchesPrice = price <= 50000;
+    } else if (selectedPriceRange === "50000-75000") {
+      matchesPrice = price > 50000 && price <= 75000;
+    } else if (selectedPriceRange === "75000+") {
+      matchesPrice = price > 75000;
+    }
 
+    const year = getCarYear(car);
     let matchesYear = true;
-    if (selectedYear !== "all") matchesYear = car.year === Number(selectedYear);
+    if (selectedYear !== "all") {
+      matchesYear = year === Number(selectedYear);
+    }
 
     return matchesSearch && matchesFuel && matchesTransmission && matchesPrice && matchesYear;
   });
@@ -87,14 +184,56 @@ export default function Collections() {
     return () => observer.disconnect();
   }, [filteredCars]);
 
-  const getConditionVariant = (condition: Car["condition"]) => {
+  const getConditionVariant = (condition: string) => {
     switch (condition) {
       case "Excellent": return "success";
       case "Good": return "primary";
       case "Fair": return "warning";
+      case "New": return "info";
       default: return "secondary";
     }
   };
+
+  const getConditionText = (condition: string) => {
+    switch (condition) {
+      case "New": return "Brand New";
+      default: return condition || "Good";
+    }
+  };
+
+const getYearOptions = () => {
+  const years = Array.from(
+    new Set(cars.map(car => Number(getCarYear(car))))
+  ).sort((a, b) => b - a);
+
+  return years.map(year => (
+    <option key={year} value={year}>
+      {year}
+    </option>
+  ));
+};
+
+
+  const getFuelTypeOptions = () => {
+    const fuelTypes = Array.from(new Set(cars.map(car => getCarFuelType(car))));
+    return fuelTypes.map(type => (
+      <option key={type} value={type}>{type}</option>
+    ));
+  };
+
+  const getTransmissionOptions = () => {
+    const transmissions = Array.from(new Set(cars.map(car => getCarTransmission(car))));
+    return transmissions.map(type => (
+      <option key={type} value={type}>{type}</option>
+    ));
+  };
+
+  // Calculate statistics
+  const totalCars = cars.length;
+  const averagePrice = totalCars > 0 
+    ? Math.round(cars.reduce((sum, car) => sum + getCarPrice(car), 0) / totalCars)
+    : 0;
+  const featuredCars = cars.filter(car => getCarFeatured(car)).length;
 
   const styles = `
     body {
@@ -173,7 +312,7 @@ export default function Collections() {
       height: 40px;
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content-center;
       backdrop-filter: blur(20px);
       background: rgba(30, 30, 30, 0.8);
       border: 1px solid rgba(255, 255, 255, 0.1);
@@ -215,16 +354,6 @@ export default function Collections() {
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
       text-transform: uppercase;
       font-size: 0.75rem;
-    }
-    
-    .car-spec-item {
-      padding: 10px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      transition: all 0.3s ease;
-    }
-    
-    .car-card:hover .car-spec-item {
-      border-bottom-color: rgba(33, 150, 243, 0.2);
     }
     
     .car-price {
@@ -389,37 +518,28 @@ export default function Collections() {
       background: linear-gradient(135deg, #1976D2, #0097A7);
     }
     
-   .search-input {
-  border-radius: 14px;
-  border: 1px solid #444;
-  /* Dark background initially */
-  background: rgba(30, 30, 30, 0.9); 
-  /* Placeholder color */
-  color: #aaa; 
-  padding: 14px 20px;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-}
-
-.search-input::placeholder {
-  color: #aaa;
-  opacity: 1;
-}
-
-/* When the user clicks or types */
-.search-input:focus {
-  outline: none;
-  border-color: #2196F3;
-  box-shadow: 0 0 8px rgba(33, 150, 243, 0.5);
-  
-  /* CHANGES START HERE */
-  background: #fff;    /* Change background to white so black text is visible */
-  color: #000;         /* Change text color to black */
-}
+    .search-input {
+      border-radius: 14px;
+      border: 1px solid #444;
+      background: rgba(30, 30, 30, 0.9);
+      color: #aaa;
+      padding: 14px 20px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+    }
     
+    .search-input::placeholder {
+      color: #aaa;
+      opacity: 1;
+    }
     
-    
-   
+    .search-input:focus {
+      outline: none;
+      border-color: #2196F3;
+      box-shadow: 0 0 8px rgba(33, 150, 243, 0.5);
+      background: #fff;
+      color: #000;
+    }
     
     .input-group-text {
       border-radius: 14px 0 0 14px;
@@ -529,12 +649,72 @@ export default function Collections() {
       box-shadow: 0 4px 15px rgba(255, 107, 0, 0.3);
       z-index: 2;
     }
+
+    .loading-spinner {
+      min-height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .error-state {
+      animation: fadeIn 0.6s ease;
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(220, 53, 69, 0.1), rgba(220, 53, 69, 0.05));
+      border: 1px solid rgba(220, 53, 69, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
   `;
 
-  // Calculate statistics
-  const totalCars = mockCars.length;
-//   const averagePrice = Math.round(mockCars.reduce((sum, car) => sum + car.price, 0) / totalCars);
-//   const featuredCars = mockCars.filter(car => car.featured).length;
+  if (loading) {
+    return (
+      <>
+        <style>{styles}</style>
+        <div className="container my-5 loading-spinner" style={{ maxWidth: '1400px' }}>
+          <div className="text-center">
+            <Spinner animation="border" variant="primary" style={{ width: '4rem', height: '4rem' }} />
+            <h4 className="mt-4 text-white">Loading Premium Collection...</h4>
+            <p className="text-muted">Please wait while we fetch the latest vehicles</p>
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  if (error) {
+    return (
+      <>
+        <style>{styles}</style>
+        <div className="container my-5" style={{ maxWidth: '1400px' }}>
+          <div className="text-center mb-3 py-5">
+            <h1 className="hero-section display-3 fw-bold mb-3">
+              <Zap className="me-3" style={{ filter: 'drop-shadow(0 0 10px #2196F3)' }} />
+              Premium Collection
+            </h1>
+          </div>
+          <Card className="text-center p-5 error-state">
+            <div className="mb-4">
+              <h3 className="fw-bold mb-3 text-danger">Error Loading Vehicles</h3>
+              <p className="text-muted mb-4 fs-5">{error}</p>
+              <Button 
+                variant="danger" 
+                onClick={() => window.location.reload()}
+                className="px-5 py-2"
+              >
+                Retry
+              </Button>
+              <div className="mt-4">
+                <small className="text-muted">
+                  URL: {import.meta.env.VITE_BACKEND_URL}/api/cars
+                </small>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
@@ -552,7 +732,7 @@ export default function Collections() {
           </p>
           
           {/* Stats Row */}
-          {/* <Row className="stats-row justify-content-center">
+          <Row className="stats-row justify-content-center">
             <Col xs={4} md={2} className="stats-item">
               <span className="stats-value pulse">{totalCars}</span>
               <span className="stats-label">Total Vehicles</span>
@@ -565,7 +745,7 @@ export default function Collections() {
               <span className="stats-value">{featuredCars}</span>
               <span className="stats-label">Featured</span>
             </Col>
-          </Row> */}
+          </Row>
         </div>
 
         {/* Search & Filters */}
@@ -607,9 +787,7 @@ export default function Collections() {
                       onChange={(e) => setSelectedFuelType(e.target.value)}
                     >
                       <option value="all">All Fuel Types</option>
-                      <option value="Petrol">Petrol</option>
-                      <option value="Diesel">Diesel</option>
-                      <option value="Electric">Electric</option>
+                      {getFuelTypeOptions()}
                     </Form.Select>
                   </Col>
                   <Col md={3} sm={6}>
@@ -618,8 +796,7 @@ export default function Collections() {
                       onChange={(e) => setSelectedTransmission(e.target.value)}
                     >
                       <option value="all">All Transmissions</option>
-                      <option value="Automatic">Automatic</option>
-                      <option value="Manual">Manual</option>
+                      {getTransmissionOptions()}
                     </Form.Select>
                   </Col>
                   <Col md={3} sm={6}>
@@ -639,9 +816,7 @@ export default function Collections() {
                       onChange={(e) => setSelectedYear(e.target.value)}
                     >
                       <option value="all">All Years</option>
-                      <option value="2023">2023</option>
-                      <option value="2022">2022</option>
-                      <option value="2021">2021</option>
+                      {getYearOptions()}
                     </Form.Select>
                   </Col>
                 </Row>
@@ -675,125 +850,215 @@ export default function Collections() {
         </Card>
 
         {/* Cars Grid */}
-        <Row xs={1} sm={2} lg={4} className="g-4">
-          {filteredCars.length > 0 ? filteredCars.map(car => (
-            <Col key={car.id}>
-              <Card 
-                className={`car-card h-100 ${visibleCards.has(car.id) ? 'visible' : ''}`}
-                data-id={car.id}
-              >
-                {car.price > 80000 && (
-                  <div className="premium-tag">Premium</div>
-                )}
-                
-                <div className="card-img-wrapper">
-                  <Card.Img 
-                    variant="top" 
-                    src={car.image} 
-                    alt={`${car.name} ${car.model}`}
-                  />
+        {filteredCars.length > 0 ? (
+          <Row xs={1} sm={2} lg={4} className="g-4">
+            {filteredCars.map(car => (
+              <Col key={car._id}>
+                <Card 
+                  className={`car-card h-100 ${visibleCards.has(car._id) ? 'visible' : ''}`}
+                  data-id={car._id}
+                >
+                  {getCarPrice(car) > 80000 && (
+                    <div className="premium-tag">Premium</div>
+                  )}
                   
-                  <div className="card-img-overlay p-3 d-flex flex-column justify-content-between">
-                    <div>
-                      {car.featured && (
-                        <Badge className="featured-badge position-absolute top-0 start-0 m-3">
-                          ⭐ Featured
-                        </Badge>
-                      )}
+                  <div className="card-img-wrapper">
+                    <Card.Img 
+                      variant="top" 
+                      src={getCarImages(car).length > 0 
+                        ? getCarImages(car)[0]
+                        : "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                      } 
+                      alt={`${getCarName(car)} ${getCarModel(car)}`}
+                      onError={(e) => {
+                        e.currentTarget.src = "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80";
+                      }}
+                    />
+                    
+                    <div className="card-img-overlay p-3 d-flex flex-column justify-content-between">
+                      <div>
+                        {getCarFeatured(car) && (
+                          <Badge className="featured-badge position-absolute top-0 start-0 m-3">
+                            ⭐ Featured
+                          </Badge>
+                        )}
 
-                      <div className="d-flex justify-content-end">
-                        <Button
-                          variant="light"
-                          className={`favorite-btn ${favorites.includes(car.id) ? 'favorited' : ''}`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleFavorite(car.id);
-                          }}
+                        <div className="d-flex justify-content-end">
+                          <Button
+                            variant="light"
+                            className={`favorite-btn ${favorites.includes(car._id) ? 'favorited' : ''}`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleFavorite(car._id);
+                            }}
+                          >
+                            <Heart size={18} fill={favorites.includes(car._id) ? "white" : "none"} />
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div>
+                        <Badge 
+                          bg={getConditionVariant(getCarCondition(car))} 
+                          className="condition-badge"
                         >
-                          <Heart size={18} fill={favorites.includes(car.id) ? "white" : "none"} />
-                        </Button>
+                          <Shield size={12} className="me-2" />
+                          {getConditionText(getCarCondition(car))}
+                        </Badge>
                       </div>
                     </div>
+                  </div>
 
-                    <div>
-                      <Badge 
-                        bg={getConditionVariant(car.condition)} 
-                        className="condition-badge"
-                      >
-                        <Shield size={12} className="me-2" />
-                        {car.condition}
-                      </Badge>
+                  <Card.Body className="p-4">
+                    <Card.Title className="mb-2">{getCarName(car)}</Card.Title>
+                    <Card.Subtitle className="car-model mb-3">{getCarModel(car)}</Card.Subtitle>
+                    <h4 className="car-price mb-4">${getCarPrice(car).toLocaleString()}</h4>
+
+                    <div className="car-specs">
+                      <Row className="mt-3">
+                        <Col xs={6} className="d-flex align-items-center mb-3">
+                          <Calendar className="car-spec-icon me-2" size={18} /> 
+                          <small className="text-muted">{getCarYear(car)}</small>
+                        </Col>
+                        <Col xs={6} className="d-flex align-items-center mb-3">
+                          <Gauge className="car-spec-icon me-2" size={18} /> 
+                          <small className="text-muted">{formatMileage(getCarMileage(car))}</small>
+                        </Col>
+                        <Col xs={6} className="d-flex align-items-center mb-3">
+                          <Fuel className="car-spec-icon me-2" size={18} /> 
+                          <small className="text-muted">{getCarFuelType(car)}</small>
+                        </Col>
+                        <Col xs={6} className="d-flex align-items-center mb-3">
+                          <Settings className="car-spec-icon me-2" size={18} /> 
+                          <small className="text-muted">{getCarTransmission(car)}</small>
+                        </Col>
+                        <Col xs={12} className="d-flex align-items-center mt-2 pt-3 border-top border-dark">
+                          <MapPin className="car-spec-icon me-2" size={18} /> 
+                          <small className="text-muted">{getCarLocation(car)}</small>
+                        </Col>
+                      </Row>
                     </div>
-                  </div>
-                </div>
 
-                <Card.Body className="p-4">
-                  <Card.Title className="mb-2">{car.name}</Card.Title>
-                  <Card.Subtitle className="car-model mb-3">{car.model}</Card.Subtitle>
-                  <h4 className="car-price mb-4">${car.price.toLocaleString()}</h4>
+                   <Button 
+  variant="primary" 
+  className="contact-btn w-100 mt-4"
+  onClick={() => handleViewDetails(car)}
+>
+  View Details
+</Button>
 
-                  <div className="car-specs">
-                    <Row className="mt-3">
-                      <Col xs={6} className="d-flex align-items-center mb-3">
-                        <Calendar className="car-spec-icon me-2" size={18} /> 
-                        <small className="text-muted">{car.year}</small>
-                      </Col>
-                      <Col xs={6} className="d-flex align-items-center mb-3">
-                        <Gauge className="car-spec-icon me-2" size={18} /> 
-                        <small className="text-muted">{car.mileage}</small>
-                      </Col>
-                      <Col xs={6} className="d-flex align-items-center mb-3">
-                        <Fuel className="car-spec-icon me-2" size={18} /> 
-                        <small className="text-muted">{car.fuelType}</small>
-                      </Col>
-                      <Col xs={6} className="d-flex align-items-center mb-3">
-                        <Settings className="car-spec-icon me-2" size={18} /> 
-                        <small className="text-muted">{car.transmission}</small>
-                      </Col>
-                      <Col xs={12} className="d-flex align-items-center mt-2 pt-3 border-top border-dark">
-                        <MapPin className="car-spec-icon me-2" size={18} /> 
-                        <small className="text-muted">{car.location}</small>
-                      </Col>
-                    </Row>
-                  </div>
-
-                  <Button 
-                    variant="primary" 
-                    className="contact-btn w-100 mt-4"
-                    onClick={() => console.log(`Contact dealer for ${car.name}`)}
-                  >
-                    Contact Dealer
-                  </Button>
-                </Card.Body>
-              </Card>
-            </Col>
-          )) : (
+                  </Card.Body>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+        ) : (
+          <Row>
             <Col xs={12}>
               <Card className="text-center p-5 empty-state">
                 <div className="mb-4">
                   <Search size={70} className="mb-4 text-muted" style={{ filter: 'drop-shadow(0 0 10px rgba(33, 150, 243, 0.3))' }} />
-                  <h3 className="fw-bold mb-3">No vehicles found</h3>
+                  <h3 className="fw-bold mb-3">
+                    {cars.length === 0 ? "No vehicles available" : "No vehicles found"}
+                  </h3>
                   <p className="text-muted mb-4 fs-5">
-                    Try adjusting your search or filters to find what you're looking for.
+                    {cars.length === 0 
+                      ? "Check back soon for new arrivals!" 
+                      : "Try adjusting your search or filters to find what you're looking for."
+                    }
                   </p>
-                  <Button 
-                    variant="primary" 
-                    onClick={() => {
-                      setSearchQuery("");
-                      setSelectedFuelType("all");
-                      setSelectedTransmission("all");
-                      setSelectedPriceRange("all");
-                      setSelectedYear("all");
-                    }}
-                    className="px-5 py-2"
-                  >
-                    Clear All Filters
-                  </Button>
+                  {cars.length > 0 && (
+                    <Button 
+                      variant="primary" 
+                      onClick={() => {
+                        setSearchQuery("");
+                        setSelectedFuelType("all");
+                        setSelectedTransmission("all");
+                        setSelectedPriceRange("all");
+                        setSelectedYear("all");
+                      }}
+                      className="px-5 py-2"
+                    >
+                      Clear All Filters
+                    </Button>
+                  )}
                 </div>
               </Card>
             </Col>
-          )}
-        </Row>
+          </Row>
+        )}
+         <Modal
+  show={showModal}
+  onHide={handleCloseModal}
+  size="lg"
+  centered
+  className="text-light"
+>
+  <Modal.Header closeButton style={{ borderBottom: "" }}>
+    <Modal.Title>{selectedCar?.name} {selectedCar?.model}</Modal.Title>
+  </Modal.Header>
+  <Modal.Body style={{ background: "white" }}>
+    {selectedCar && (
+      <Row>
+        <Col md={6}>
+          <img
+            src={getCarImages(selectedCar)[0] || "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"}
+            alt={`${selectedCar.name} ${selectedCar.model}`}
+            style={{ width: "100%", borderRadius: "12px", marginBottom: "15px" }}
+          />
+        </Col>
+        <Col md={6}>
+          <h4 className="mb-3 car-price">${getCarPrice(selectedCar).toLocaleString()}</h4>
+          <p>{selectedCar.description || "No description available."}</p>
+
+          <Row className="mt-4">
+            <Col xs={6} className="mb-2">
+              <Calendar className="me-2" /> Year: {getCarYear(selectedCar)}
+            </Col>
+            <Col xs={6} className="mb-2">
+              <Gauge className="me-2" /> Mileage: {formatMileage(getCarMileage(selectedCar))}
+            </Col>
+            <Col xs={6} className="mb-2">
+              <Fuel className="me-2" /> Fuel: {getCarFuelType(selectedCar)}
+            </Col>
+            <Col xs={6} className="mb-2">
+              <Settings className="me-2" /> Transmission: {getCarTransmission(selectedCar)}
+            </Col>
+            <Col xs={12} className="mb-2">
+              <MapPin className="me-2" /> Location: {getCarLocation(selectedCar)}
+            </Col>
+            {selectedCar.engineCapacity && (
+              <Col xs={12} className="mb-2">
+                <Zap className="me-2" /> Engine: {selectedCar.engineCapacity}
+              </Col>
+            )}
+            {selectedCar.color && (
+              <Col xs={12} className="mb-2">
+                <Star className="me-2" /> Color: {selectedCar.color}
+              </Col>
+            )}
+            <Col xs={12} className="mt-3">
+              <Badge bg={getConditionVariant(getCarCondition(selectedCar))} className="condition-badge">
+                <Shield className="me-2" /> {getConditionText(getCarCondition(selectedCar))}
+              </Badge>
+              {getCarFeatured(selectedCar) && (
+                <Badge bg="warning" className="ms-2 condition-badge">
+                  ⭐ Featured
+                </Badge>
+              )}
+            </Col>
+          </Row>
+        </Col>
+      </Row>
+    )}
+  </Modal.Body>
+  <Modal.Footer style={{ borderTop: "1px solid #333" }}>
+    <Button variant="secondary" onClick={handleCloseModal}>
+      Close
+    </Button>
+    
+  </Modal.Footer>
+</Modal>
 
         {/* Footer Note */}
         <div className="text-center mt-5 pt-4 border-top border-dark">

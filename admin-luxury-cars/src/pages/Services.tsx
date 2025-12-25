@@ -6,6 +6,7 @@ import {
   deleteServices,
 } from "../api/servicesapi";
 import ServicesModal from "../components/ServicesModal";
+import toast from "react-hot-toast";
 interface ServiceItem {
   title: string;
   description: string;
@@ -41,8 +42,10 @@ export default function Services() {
   const handleSave = async (formData: FormData) => {
     if (editData?._id) {
       await updateServices(editData._id, formData); // ✅ UPDATE
+      toast.success("Service updated successfully");
     } else {
       await createServices(formData); // ✅ CREATE
+      toast.success("Service added successfully");
     }
 
     setOpenModal(false);
@@ -53,6 +56,7 @@ export default function Services() {
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this services section?")) return;
     await deleteServices(id);
+    toast.success("Services deleted");
     fetchServices();
   };
 

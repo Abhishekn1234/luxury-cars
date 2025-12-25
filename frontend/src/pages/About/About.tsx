@@ -1,4 +1,4 @@
-import { useEffect, type FC } from "react";
+import { useEffect, useState, type FC } from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import { motion, type Variants } from "framer-motion";
 import {
@@ -36,12 +36,37 @@ const scrollReveal = (direction: "up" | "down" = "up"): Variants => ({
   hidden: { opacity: 0, y: direction === "up" ? 70 : -70 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.9, ease: "easeOut" } },
 });
+interface AboutData {
+  title: string;
+  description: string;
+  features: string[];
+  image: string;
+  highlights:string[];
+}
 
 const About: FC = () => {
+   const [about, setAbout] = useState<AboutData | null>(null);
+
+  useEffect(() => {
+    const fetchAbout = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/about`);
+        console.log(res);
+        const data: AboutData = await res.json();
+        setAbout(data);
+      } catch (error) {
+        console.error("Failed to fetch about data", error);
+      }
+    };
+    fetchAbout();
+  }, []);
+
   const navigate=useNavigate();
   useEffect(()=>{
     window.scrollTo({top:0,behavior:"smooth"})
   })
+  if (!about) return <p style={{ color: "#fff", textAlign: "center" }}>Loading...</p>;
+
   return (
     <div
       style={{
@@ -210,84 +235,89 @@ const About: FC = () => {
 
       {/* ================= WHO WE ARE ================= */}
       <motion.section
-        variants={scrollReveal("up")}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true }}
-        style={{
-          padding: "4rem 1rem",
-          background: "#111",
-          boxShadow: "inset 0 10px 30px rgba(0,0,0,.04)",
-        }}
-      >
-        <Container>
-          <Row className="align-items-center gy-5">
-            <Col xs={12} md={6}>
-              <motion.img
-                src="/people-vehicle-dealership-buying-new-car.jpg"
-                alt="Who we are"
-                variants={scrollReveal("down")}
+      variants={scrollReveal("up")}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
+      style={{
+        padding: "4rem 1rem",
+        background: "#111",
+        boxShadow: "inset 0 10px 30px rgba(0,0,0,.04)",
+      }}
+    >
+      <Container>
+        <Row className="align-items-center gy-5">
+          <Col xs={12} md={6}>
+            <motion.img
+              src={`${import.meta.env.VITE_BACKEND_URL}/uploads/cars/${about.image}`}
+              alt={about.title}
+              variants={scrollReveal("down")}
+              style={{
+                width: "100%",
+                borderRadius: "18px",
+                boxShadow: "0 25px 60px rgba(0,0,0,.28)",
+              }}
+            />
+          </Col>
+          <Col xs={12} md={6}>
+            <motion.div variants={scrollReveal("up")}>
+              <h3
                 style={{
-                  width: "100%",
-                  borderRadius: "18px",
-                  boxShadow: "0 25px 60px rgba(0,0,0,.28)",
+                  fontSize: "2rem",
+                  fontWeight: 700,
+                  position: "relative",
+                  marginBottom: "1.2rem",
                 }}
-              />
-            </Col>
-            <Col xs={12} md={6}>
-              <motion.div variants={scrollReveal("up")}>
-                <h3
+              >
+                {about.title}
+                <span
                   style={{
-                    fontSize: "2rem",
-                    fontWeight: 700,
-                    position: "relative",
-                    marginBottom: "1.2rem",
+                    display: "block",
+                    width: "60px",
+                    height: "4px",
+                    background: "#0dcaf0",
+                    borderRadius: "4px",
+                    marginTop: "10px",
                   }}
-                >
-                  Who We Are
-                  <span
-                    style={{
-                      display: "block",
-                      width: "60px",
-                      height: "4px",
-                      background: "#0dcaf0",
-                      borderRadius: "4px",
-                      marginTop: "10px",
-                    }}
-                  />
-                </h3>
-                <p style={{ color: "#ccc", fontSize: "1rem", lineHeight: 1.6 }}>
-                  AutoMart is more than just a used-car showroom — we are a destination for drivers who value quality, trust, and transparency. Every vehicle undergoes strict inspection and verification to ensure peace of mind.
-                </p>
-                <p style={{ color: "#ccc", fontSize: "1rem", lineHeight: 1.6, marginTop: "0.5rem" }}>
-                  With years of industry expertise, we specialize in delivering premium vehicles at the best market value, supported by customer-first service and complete documentation clarity.
-                </p>
+                />
+              </h3>
+              <p style={{ color: "#ccc", fontSize: "1rem", lineHeight: 1.6 }}>
+                {about.description}
+              </p>
 
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "1rem", marginTop: "1.5rem" }}>
-                  {["Certified & Inspected Cars", "100% Transparent Pricing", "Verified Ownership History", "Trusted by 1000+ Customers"].map((item, index) => (
-                    <div
-                      key={index}
-                      style={{
-                        background: "#1a1a1a",
-                        padding: "1rem",
-                        borderRadius: "14px",
-                        fontSize: "0.9rem",
-                        fontWeight: 500,
-                        boxShadow: "0 10px 30px rgba(0,0,0,.28)",
-                        color: "#fff",
-                        textAlign: "center",
-                      }}
-                    >
-                      {item}
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            </Col>
-          </Row>
-        </Container>
-      </motion.section>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+                  gap: "1rem",
+                  marginTop: "1.5rem",
+                }}
+              >
+                {about.highlights?.map((item, index) => (
+  <div
+    key={index}
+    style={{
+      background: "#1a1a1a",
+      padding: "1rem",
+      borderRadius: "14px",
+      fontSize: "0.9rem",
+      fontWeight: 500,
+      boxShadow: "0 10px 30px rgba(0,0,0,.28)",
+      color: "#fff",
+      textAlign: "center",
+    }}
+  >
+    {item}
+  </div>
+))}
 
+              </div>
+            </motion.div>
+          </Col>
+        </Row>
+      </Container>
+    </motion.section>
+  
       {/* ================= CTA ================= */}
       <motion.section
         initial={{ opacity: 0, y: 80, scale: 0.95 }}

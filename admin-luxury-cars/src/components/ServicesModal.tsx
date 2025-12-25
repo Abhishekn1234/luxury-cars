@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 interface ServiceItem {
   title: string;
@@ -72,6 +73,7 @@ useEffect(() => {
     if (image) fd.append("image", image);
 
     onSave(fd);
+    toast.success("Service added successfully");
   };
 
   return (

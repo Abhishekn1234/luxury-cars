@@ -8,6 +8,7 @@ import {
 } from "../api/carapi";
 import CarModal from "../components/CarModal";
 import { Search, Plus, Edit2, Trash2, ChevronLeft, ChevronRight, Image as ImageIcon } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function Cars() {
   const [cars, setCars] = useState<Car[]>([]);
@@ -46,14 +47,17 @@ export default function Cars() {
     try {
       if (selectedCar?._id) {
         await updateCar(selectedCar._id, data);
+        toast.success("Car updated successfully");
       } else {
         await createCar(data);
+        toast.success("Car Added successfully");
       }
       setModalOpen(false);
       setSelectedCar(null);
       fetchCars();
-    } catch (error) {
+    } catch (error:any) {
       console.error("Failed to save car:", error);
+      toast.error(error.message);
     }
   };
 
@@ -64,10 +68,13 @@ export default function Cars() {
     try {
       await deleteCar(id);
       fetchCars();
-    } catch (error) {
+      toast.success("Car deleted successfully");
+    } catch (error:any) {
       console.error("Failed to delete car:", error);
+      toast.error(error.message);
     } finally {
       setDeleteLoading(null);
+      toast.error("Failed to delete")
     }
   };
 
