@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 
-export interface ICar {
+export interface ISellingCar {
   type: string;
   name: string;
   mobile: string;
@@ -58,4 +58,4 @@ const carSchema: Schema = new Schema({
   isAgree: { type: Boolean, default: false },
 }, { timestamps: true });
 
-export const Car = mongoose.model<ICar>("SellingCar", carSchema);
+export const Car = mongoose.model<ISellingCar>("SellingCar", carSchema);

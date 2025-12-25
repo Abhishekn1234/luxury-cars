@@ -1,5 +1,5 @@
 import express from "express";
-import { submitCarForm } from "../controllers/selling";
+import { getAllSellingCars, submitCarForm } from "../controllers/selling";
 import multer from "multer";
 import path from "path";
 
@@ -18,5 +18,5 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 router.post("/", upload.single("vehicleImage"), submitCarForm);
-
+router.get("/", getAllSellingCars);
 export default router;

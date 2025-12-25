@@ -1,6 +1,6 @@
 // controllers/sellingController.ts
 import { Request, Response } from "express";
-import { createCar, ValidationError } from "../services/selling";
+import { createCar, getAllSellingCarsService, ValidationError } from "../services/selling";
 
 interface MulterRequest extends Request {
   file?: Express.Multer.File;
@@ -42,3 +42,27 @@ export const submitCarForm = async (req: MulterRequest, res: Response) => {
   }
 };
 
+
+export const getAllSellingCars = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 5;
+
+    const result = await getAllSellingCarsService(page, limit);
+
+    res.status(200).json({
+      success: true,
+      message: "Selling car submissions fetched successfully",
+      ...result,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch selling car submissions",
+    });
+  }
+};

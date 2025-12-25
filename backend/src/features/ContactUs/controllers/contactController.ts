@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import ContactMessage from "../models/contact"; // Mongoose model
 import { sendSimpleMessage } from "../../config/mail";
 import dotenv from "dotenv";
+import { getAllContactsService } from "../services/contactservices";
 
 dotenv.config();
 
@@ -47,5 +48,28 @@ export const sendContactMail = async (req: Request, res: Response) => {
   } catch (err: any) {
     console.error("Error in sendContactMail:", err);
     return res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+export const getAllContacts = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 5;
+
+    const result = await getAllContactsService(page, limit);
+
+    res.status(200).json({
+      success: true,
+      message: "Contact messages fetched successfully",
+      ...result,
+    });
+  } catch (error) {
+    console.error("Get contacts error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch contact messages",
+    });
   }
 };

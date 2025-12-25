@@ -9,7 +9,7 @@ import ProtectedRoute from './components/ProtectedRoutes';
 import Cars from './pages/Cars';
 import Services from './pages/Services';
 import Users from './pages/Users';
-import Notifications from './pages/Notification';
+
 import Layout from './components/Layout';
 import { Toaster } from "react-hot-toast"
 function App() {
@@ -28,7 +28,7 @@ function App() {
   <Route path="/cars" element={<Cars />} />
   <Route path="/services" element={<Services />} />
   <Route path="/users" element={<Users />} />
-  <Route path="/notifications" element={<Notifications />} />
+  
 </Route>
 
       </Routes>

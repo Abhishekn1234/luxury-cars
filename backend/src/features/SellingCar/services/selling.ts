@@ -1,4 +1,4 @@
-import { Car, ICar } from "../models/selling";
+import { Car, ISellingCar } from "../models/selling";
 import { Error } from "mongoose";
 
 export class ValidationError extends Error {
@@ -21,14 +21,14 @@ const isValidMobile = (mobile: string) => {
   return re.test(mobile);
 };
 
-export const createCar = async (data: Partial<ICar>) => {
+export const createCar = async (data: Partial<ISellingCar>) => {
   // Basic required fields validation
   const requiredFields = [
     "type", "name", "mobile", "email", "vehicle", "modelName", "brand", "ownership", "transmission", "fuelType", "isAgree"
   ];
 
   for (const field of requiredFields) {
-    if (!data[field as keyof ICar] || data[field as keyof ICar] === "") {
+    if (!data[field as keyof ISellingCar] || data[field as keyof ISellingCar] === "") {
       throw new ValidationError(`${field} is required`);
     }
   }
@@ -73,4 +73,26 @@ export const createCar = async (data: Partial<ICar>) => {
   // Save new car
   const car = new Car(data);
   return car.save();
+};
+
+export const getAllSellingCarsService = async (
+  page: number,
+  limit: number
+) => {
+  const skip = (page - 1) * limit;
+
+  const [data, total] = await Promise.all([
+    Car.find()
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit),
+    Car.countDocuments(),
+  ]);
+
+  return {
+    data,
+    total,
+    page,
+    totalPages: Math.ceil(total / limit),
+  };
 };

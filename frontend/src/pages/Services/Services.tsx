@@ -4,6 +4,7 @@ import { Shield, Star, ChevronRight, CheckCircle, Users, Clock, Award, Car, Phon
 import type { JSX } from "react";
 import { GiGears, GiSpeedometer } from "react-icons/gi";
 import { useEffect, useState, useRef } from "react";
+import { toast } from "react-toastify";
 
 interface Service {
   id: number;
@@ -177,25 +178,66 @@ const [hover, setHover] = useState(false);
     }
   };
   const [showModal, setShowModal] = useState(false);
-  const [selectedCar, setSelectedCar] = useState("");
-
+ 
   const handleClose = () => setShowModal(false);
   const handleShow = () => setShowModal(true);
+interface Car {
+  _id: string;
+  name: string;
+  model: string;
+}
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const data = {
-      firstName: (form.elements.namedItem("firstName") as HTMLInputElement).value,
-      lastName: (form.elements.namedItem("lastName") as HTMLInputElement).value,
-      email: (form.elements.namedItem("email") as HTMLInputElement).value,
-      phone: (form.elements.namedItem("phone") as HTMLInputElement).value,
-      car: selectedCar,
-    };
-    console.log("Test Drive Data:", data);
-    alert("Test Drive Scheduled!"); // replace with API call if needed
-    handleClose();
+const [cars, setCars] = useState<Car[]>([]);
+const [selectedCar, setSelectedCar] = useState<string>("");
+
+useEffect(() => {
+  const fetchCars = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/api/cars");
+      const data = await res.json();
+      setCars(data.data);
+    } catch (error) {
+      console.error("Failed to fetch cars", error);
+    }
   };
+
+  fetchCars();
+}, []);
+const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  const form = e.currentTarget;
+
+  const data = {
+    firstName: (form.elements.namedItem("firstName") as HTMLInputElement).value,
+    lastName: (form.elements.namedItem("lastName") as HTMLInputElement).value,
+    email: (form.elements.namedItem("email") as HTMLInputElement).value,
+    phone: (form.elements.namedItem("phone") as HTMLInputElement).value,
+    car: selectedCar,
+  };
+
+  try {
+    const res = await fetch(
+      "http://localhost:5000/api/services/testdrive",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      }
+    );
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      throw new Error(result.message || "Failed to schedule test drive");
+    }
+
+    toast.success("Test Drive Scheduled Successfully 🚗");
+    handleClose();
+  } catch (error: any) {
+    console.error(error);
+    toast.error(error.message || "Something went wrong ❌");
+  }
+};
   const [showModals, setShowModals] = useState(false);
 
   const handleCloses = () => setShowModals(false);
@@ -694,11 +736,12 @@ const [hover, setHover] = useState(false);
                 onChange={(e) => setSelectedCar(e.target.value)}
                 required
               >
-                <option value="">Select a car</option>
-                <option value="BMW X5">BMW X5</option>
-                <option value="Audi Q7">Audi Q7</option>
-                <option value="Mercedes GLE">Mercedes GLE</option>
-                <option value="Tesla Model X">Tesla Model X</option>
+                  <option value="">Select a Car</option>
+                {cars.map((car) => (
+                  <option key={car._id} value={car._id}>
+                    {car.name} {car.model}
+                  </option>
+                ))}
               </Form.Select>
             </Form.Group>
 
