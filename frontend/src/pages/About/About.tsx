@@ -1,5 +1,5 @@
 import { useEffect, useState, type FC } from "react";
-import { Container, Row, Col, Button } from "react-bootstrap";
+import { Container, Row, Col, Button, Spinner } from "react-bootstrap";
 import { motion, type Variants } from "framer-motion";
 import {
   SiBmw,
@@ -65,7 +65,30 @@ const About: FC = () => {
   useEffect(()=>{
     window.scrollTo({top:0,behavior:"smooth"})
   })
-  if (!about) return <p style={{ color: "#fff", textAlign: "center" }}>Loading...</p>;
+  if (!about) {
+  return (
+    <div
+      style={{
+        minHeight: "300px",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        textAlign: "center",
+      }}
+    >
+      <Spinner
+        animation="border"
+        role="status"
+        variant="dark"
+        style={{ width: '4rem', height: '4rem' }}
+      >
+        <span className="visually-hidden">Loading...</span>
+      </Spinner>
+      <p style={{ color: "black", marginTop: "10px" }}>Loading content...</p>
+    </div>
+  );
+}
 
   return (
     <div
