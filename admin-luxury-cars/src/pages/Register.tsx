@@ -2,30 +2,36 @@ import { useState } from "react";
 import { registerAdmin } from "../api/api";
 import type { RegisterRequest } from "../types/types";
 import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 export default function Register() {
-  const [form, setForm] = useState<RegisterRequest>({
-    name: "",
-    email: "",
-    password: "",
-  });
+  const [form, setForm] = useState<RegisterRequest>({ name: "", email: "", password: "" });
   const [error, setError] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // toggle password visibility
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+    setError(""); // clear error immediately
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await registerAdmin(form);
-      navigate("/login");
-    } catch (err: any) {
-      setError(err.message);
-    }
-  };
+  e.preventDefault();
+  try {
+    await registerAdmin(form);
+    localStorage.setItem("adminname",form.name);
+    localStorage.setItem("adminemail",form.email);
+    
+    toast.success("Registered successfully");
+    navigate("/login");
+  } catch (err: any) {
+    console.error(err);
+    const message = err?.message || "Registration failed";
+    setError(message);       // show in form
+    toast.error(message);    // show in toast instantly
+  }
+};
+
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">

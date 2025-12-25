@@ -2,18 +2,17 @@ import { useState } from "react";
 import { loginAdmin } from "../api/api";
 import type { LoginRequest } from "../types/types";
 import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 export default function Login() {
-  const [form, setForm] = useState<LoginRequest>({
-    email: "",
-    password: "",
-  });
+  const [form, setForm] = useState<LoginRequest>({ email: "", password: "" });
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+    setError(""); // clear error immediately
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -21,9 +20,13 @@ export default function Login() {
     try {
       const data = await loginAdmin(form);
       localStorage.setItem("token", data.token);
-      navigate("/dashboard");
+      toast.success("Login Successful");
+      navigate("/");
     } catch (err: any) {
-      setError(err.message);
+      console.error(err);
+      const message = err?.message || "Login failed";
+      setError(message); // show inside form
+      toast.error(message); // show toast
     }
   };
 
@@ -83,4 +86,3 @@ export default function Login() {
     </div>
   );
 }
-
