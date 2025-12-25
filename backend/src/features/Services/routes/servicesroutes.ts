@@ -34,7 +34,7 @@ router.put(
 router.delete("/:id", authMiddleware, deleteServices);
 
 router.post("/testdrive", controller.createTestDrive);
-router.get("/testdrive", controller.getAllTestDrives);
+router.get("/testdrive", controller.getAllTestDrivesController);
 router.get("/testdrive/:id", controller.getTestDriveById);
 
 router.delete("/testdrive/:id/delete", controller.deleteTestDrive);

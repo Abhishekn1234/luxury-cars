@@ -106,12 +106,18 @@ export const createTestDrive = async (req: Request, res: Response) => {
     res.status(500).json({ message: error.message || "Server Error" });
   }
 };
-export const getAllTestDrives = async () => {
-  return await TestDrive.find()
-    .populate("car", "name model price image")
-    .sort({ createdAt: -1 });
-};
+export const getAllTestDrivesController = async (req: Request, res: Response) => {
+  try {
+    const testDrives = await TestDrive.find()
+      .populate("car", "name model price image") // populate car details
+      .sort({ createdAt: -1 }); // newest first
 
+    res.status(200).json(testDrives);
+  } catch (error: any) {
+    console.error(error);
+    res.status(500).json({ message: error.message || "Server Error" });
+  }
+};
 export const getTestDriveById = async (id: string) => {
   return await TestDrive.findById(id).populate("car");
 };
