@@ -8,7 +8,7 @@ import contactRoutes from "./features/ContactUs/routes/contact";
 import { connectDB } from './features/config/db';
 import adminRoutes from "./features/AdminAuth/routes/adminroutes";
 import path from 'path';
-import carRoutes from "../src/features/Collections/routes/carroutes";
+import carRoutes from "./features/Collections/routes/carroutes";
 import ContactMessage from './features/ContactUs/models/contact';
 import Cars from './features/Collections/models/Cars';
 import { Car } from './features/SellingCar/models/selling';
