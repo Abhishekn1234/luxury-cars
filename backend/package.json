@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "type": "commonjs",
   "scripts": {
-    "build": "npx tsc",
-    "start": "node dist/server.js"
+    "build": "node node_modules/typescript/bin/tsc",
+"start": "node dist/server.js"
   },
   "dependencies": {
     "typescript": "^5.9.3",
