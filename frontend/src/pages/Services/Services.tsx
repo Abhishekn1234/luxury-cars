@@ -337,24 +337,29 @@ export default function Services() {
             justifyContent: "center"
           }}
         >
-          <Badge
-            style={{
-              backgroundColor: "rgba(33, 150, 243, 0.1)",
-              color: "#e3e6e9ff",
-              fontSize: "0.8rem",
-              borderRadius: "12px",
-              padding: "15px 0",
-              display: "block",
-              textAlign: "center",
-              fontWeight: 600,
-              letterSpacing: "1px",
-              width: "40%",
-              maxWidth: "200px",
-              margin: "0 auto",
-            }}
-          >
-            PREMIUM CAR SOLUTIONS
-          </Badge>
+        <Badge
+  className="
+    d-block
+    mx-auto
+    text-center
+    fw-semibold
+    text-uppercase
+    px-2            /* Reduced padding horizontal */
+    py-1            /* Reduced padding vertical */
+    fs-7            /* Smaller font size (Bootstrap 5.3+) or fs-6 */
+    rounded-pill
+    w-auto          /* Set to auto so it hugs the text */
+    d-inline-block  /* Ensures it doesn't stretch to full width */
+    
+    bg-primary      /* Added a base color */
+    bg-opacity-10
+    text-primary    /* Changed text-light to primary for better contrast on light bg */
+  "
+  style={{ maxWidth: 'fit-content' }} 
+>
+  PREMIUM CAR SOLUTIONS
+</Badge>
+
 
           <h1 className="display-3 fw-bold mb-4">
             <span style={{ color: "#fff" }}>Driving </span>
