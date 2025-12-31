@@ -64,7 +64,7 @@ export default function Footer() {
           <i className="bi bi-geo-alt me-2 text-warning"></i> 123 Luxury St, City
         </p>
         <p className="text-secondary mb-2">
-          <i className="bi bi-telephone me-2 text-warning"></i> +91 98765 43210
+          <i className="bi bi-telephone me-2 text-warning"></i> +971 521775669
         </p>
         <p className="text-secondary">
           <i className="bi bi-envelope me-2 text-warning"></i> info@automart.com
